@@ -1,112 +1,74 @@
 import { Layout } from '@/components/layout/Layout';
-import { Phone, Tag, Clock, ArrowRight } from 'lucide-react';
+import { Phone, Tag, Clock, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { promos, siteConfig } from '@/content/site-content';
 
-interface Promo {
-  id: number;
-  title: string;
-  description: string;
-  details?: string;
-  validUntil?: string;
-  badge?: string;
-  active: boolean;
-}
-
-// Placeholder promos - in production these would come from a CMS
-const promos: Promo[] = [
-  {
-    id: 1,
-    title: 'Безплатен разширен мониторинг',
-    description: 'При поръчка на система от 12kW или повече получавате безплатен разширен мониторинг за 2 години.',
-    details: 'Включва подробни справки, експорт на данни и приоритетна техническа поддръжка.',
-    validUntil: '31.03.2026',
-    badge: 'Ново',
-    active: true,
-  },
-  {
-    id: 2,
-    title: 'Препоръчай приятел',
-    description: 'Препоръчайте NRGsolution на приятел и получете отстъпка при следващото надграждане.',
-    details: 'При успешен монтаж на препоръчан от вас клиент, получавате ваучер за отстъпка.',
-    active: true,
-  },
-];
-
-const activePromos = promos.filter((p) => p.active);
-
-function PromoCard({ promo }: { promo: Promo }) {
-  return (
-    <div className="card-elevated p-6 sm:p-8 border-l-4 border-l-accent">
-      {promo.badge && (
-        <span className="inline-block bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full mb-4">
-          {promo.badge}
-        </span>
-      )}
-      <h2 className="heading-card text-foreground mb-3">{promo.title}</h2>
-      <p className="text-muted-foreground mb-4">{promo.description}</p>
-      {promo.details && (
-        <p className="text-sm text-muted-foreground/80 mb-4">{promo.details}</p>
-      )}
-      {promo.validUntil && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <Clock className="w-4 h-4" />
-          <span>Валидно до: {promo.validUntil}</span>
-        </div>
-      )}
-      <Button variant="accent" asChild className="gap-2">
-        <a href="tel:+359888123456">
-          <Phone className="w-5 h-5" />
-          Възползвай се
-          <ArrowRight className="w-4 h-4" />
-        </a>
-      </Button>
-    </div>
-  );
-}
+const activePromos = promos.filter((promo) => promo.active);
 
 const Promos = () => {
   return (
     <Layout>
-      {/* Hero */}
-      <section className="section-padding bg-gradient-to-br from-muted/50 to-background">
+      <section className="section-padding bg-[var(--gradient-hero)]">
         <div className="container-section">
-          <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-block text-sm font-semibold text-accent mb-4">ПРОМОЦИИ</span>
-            <h1 className="heading-display text-foreground mb-6">
-              Актуални оферти
-            </h1>
-            <p className="text-body text-lg">
-              Възползвайте се от специалните ни промоции. 
-              Обадете се за повече информация и условия.
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="section-eyebrow">Промоции</span>
+            <h1 className="heading-display mt-5 text-foreground">Активни оферти</h1>
+            <p className="text-body mt-5">
+              За лесен админ контрол променяйте полето `active` в `src/content/site-content.ts` за включване/изключване.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Promos */}
       <section className="section-padding bg-background">
         <div className="container-section">
           {activePromos.length > 0 ? (
-            <div className="max-w-3xl mx-auto space-y-6">
+            <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
               {activePromos.map((promo) => (
-                <PromoCard key={promo.id} promo={promo} />
+                <article key={promo.id} className="rounded-2xl border border-border/80 bg-white p-6 shadow-soft">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/15 px-3 py-1 text-xs font-bold text-foreground">
+                    <Tag className="h-3.5 w-3.5 text-accent" />
+                    {promo.badge ?? 'Промо'}
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">{promo.title}</h2>
+                  <p className="mt-3 text-sm text-muted-foreground">{promo.description}</p>
+                  {promo.details && <p className="mt-2 text-sm text-muted-foreground">{promo.details}</p>}
+                  {promo.validUntil && (
+                    <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5" />
+                      Валидност: {promo.validUntil}
+                    </p>
+                  )}
+                  <Button variant="accent" className="mt-6 w-full" asChild>
+                    <a href={siteConfig.phoneHref}>
+                      <Phone className="mr-2 h-4 w-4" />
+                      Обади се за оферта
+                    </a>
+                  </Button>
+                </article>
               ))}
             </div>
           ) : (
-            <div className="max-w-xl mx-auto text-center">
-              <Tag className="w-16 h-16 text-muted-foreground/30 mx-auto mb-6" />
-              <h2 className="heading-card text-foreground mb-4">Няма активни промоции</h2>
-              <p className="text-muted-foreground mb-8">
-                В момента нямаме специални оферти, но можете да се обадите за индивидуална оферта.
-              </p>
-              <Button variant="accent" size="lg" asChild>
-                <a href="tel:+359888123456">
-                  <Phone className="w-5 h-5 mr-2" />
-                  Обади се за оферта
+            <div className="mx-auto max-w-xl rounded-2xl border border-border/80 bg-white p-8 text-center shadow-soft">
+              <Tag className="mx-auto h-14 w-14 text-muted-foreground/40" />
+              <h2 className="mt-4 heading-card text-foreground">Няма активни промоции</h2>
+              <p className="mt-2 text-muted-foreground">Попитайте за актуални предложения по телефон.</p>
+              <Button variant="accent" size="lg" className="mt-5" asChild>
+                <a href={siteConfig.phoneHref}>
+                  <Phone className="mr-2 h-5 w-5" />
+                  {siteConfig.phoneDisplay}
                 </a>
               </Button>
             </div>
           )}
+
+          <div className="mx-auto mt-10 max-w-4xl rounded-2xl border border-border/80 bg-muted/30 p-5 text-sm text-muted-foreground">
+            <p className="inline-flex items-center gap-2 font-semibold text-foreground">
+              <Settings className="h-4 w-4 text-primary" />
+              Редакция от клиента
+            </p>
+            <p className="mt-2">Промоциите се управляват от едно място в `src/content/site-content.ts`.</p>
+          </div>
         </div>
       </section>
     </Layout>

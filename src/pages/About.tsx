@@ -1,136 +1,86 @@
 import { Layout } from '@/components/layout/Layout';
-import { Phone, Users, MapPin, Shield, Award, Zap } from 'lucide-react';
+import { Phone, Users, MapPin, ShieldCheck, BadgeCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandsSection } from '@/components/home/BrandsSection';
+import { TimelineDemo } from '@/components/home/timeline-demo';
+import { siteConfig } from '@/content/site-content';
 
 const values = [
   {
-    icon: <Shield className="w-6 h-6" />,
-    title: 'Качество',
-    description: 'Работим само с проверени марки и материали с доказана надеждност.',
+    icon: ShieldCheck,
+    title: 'Качество в изпълнението',
+    description: 'Работа с утвърдени компоненти и стриктен монтажен процес.',
   },
   {
-    icon: <Users className="w-6 h-6" />,
-    title: 'Професионализъм',
-    description: 'Екипът ни се състои от квалифицирани електротехници с богат опит.',
+    icon: Users,
+    title: 'Професионален екип',
+    description: 'Квалифицирани специалисти с реален опит на терен.',
   },
   {
-    icon: <Award className="w-6 h-6" />,
-    title: 'Отговорност',
-    description: 'Поемаме пълна грижа за вашата система — от монтажа до поддръжката.',
+    icon: BadgeCheck,
+    title: 'Отговорност след монтажа',
+    description: 'Мониторинг, дистанционна поддръжка и лесен контакт по телефон.',
   },
 ];
 
 const About = () => {
   return (
     <Layout>
-      {/* Hero */}
-      <section className="section-padding bg-gradient-to-br from-muted/50 to-background">
+      <section className="section-padding bg-[var(--gradient-hero)]">
         <div className="container-section">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
-              <span className="inline-block text-sm font-semibold text-primary mb-4">ЗА НАС</span>
-              <h1 className="heading-display text-foreground mb-6">
-                NRGsolution — вашият партньор в соларната енергия
-              </h1>
-              <p className="text-body text-lg mb-6">
-                Ние сме компания за изграждане на фотоволтаични системи за домове и предприятия. 
-                Работим в цяла България с мобилен екип от професионалисти.
+              <span className="section-eyebrow">За нас</span>
+              <h1 className="heading-display mt-5 text-foreground">NRGsolution: практичен партньор за соларни системи</h1>
+              <p className="text-body mt-5">
+                Изграждаме фотоволтаични системи за къщи и предприятия. Работим само на територията на България.
               </p>
-              <p className="text-body mb-8">
-                Нашата мисия е да направим соларната енергия достъпна и лесна за всеки. 
-                От първия контакт до дългосрочната поддръжка — грижим се за всеки детайл.
-              </p>
-              <Button variant="accent" size="lg" className="gap-2" asChild>
-                <a href="tel:+359888123456">
-                  <Phone className="w-5 h-5" />
-                  Свържете се с нас
+              <Button variant="accent" size="lg" className="mt-7" asChild>
+                <a href={siteConfig.phoneHref}>
+                  <Phone className="mr-2 h-5 w-5" />
+                  Обади се: {siteConfig.phoneDisplay}
                 </a>
               </Button>
             </div>
-            <div className="bg-muted/50 rounded-2xl aspect-[4/3] flex items-center justify-center">
-              <Zap className="w-24 h-24 text-primary/30" />
+
+            <div className="rounded-3xl border border-border/80 bg-white p-2 sm:p-4 shadow-card">
+              <TimelineDemo compact />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Values */}
       <section className="section-padding bg-background">
-        <div className="container-section">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="inline-block text-sm font-semibold text-primary mb-3">ЦЕННОСТИ</span>
-            <h2 className="heading-section text-foreground">
-              Нашият подход
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {values.map((value) => (
-              <div key={value.title} className="card-elevated p-8 text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary">
-                  {value.icon}
+        <div className="container-section grid gap-5 md:grid-cols-3">
+          {values.map((value) => {
+            const Icon = value.icon;
+            return (
+              <article key={value.title} className="rounded-2xl border border-border/80 bg-white p-6 shadow-soft">
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="heading-card text-foreground mb-3">{value.title}</h3>
-                <p className="text-muted-foreground">{value.description}</p>
-              </div>
-            ))}
-          </div>
+                <h2 className="text-lg font-bold text-foreground">{value.title}</h2>
+                <p className="mt-2 text-sm text-muted-foreground">{value.description}</p>
+              </article>
+            );
+          })}
         </div>
       </section>
 
-      {/* Coverage */}
       <section className="section-padding bg-muted/30">
         <div className="container-section">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <span className="inline-block text-sm font-semibold text-primary mb-3">ПОКРИТИЕ</span>
-              <h2 className="heading-section text-foreground mb-4">
-                Национално покритие
-              </h2>
-              <p className="text-body mb-6">
-                Работим в цяла България — от големите градове до малките села. 
-                Нашият екип е мобилен и разполага с пълния набор от оборудване за монтаж на място.
-              </p>
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-background border border-border">
-                <MapPin className="w-6 h-6 text-primary" />
-                <div>
-                  <p className="font-medium text-foreground">Офис</p>
-                  <p className="text-sm text-muted-foreground">Стара Загора, ул. Ген. Столетов 199</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-background rounded-2xl p-8 aspect-square flex items-center justify-center border border-border">
-              <div className="text-center">
-                <MapPin className="w-16 h-16 text-primary/50 mx-auto mb-4" />
-                <p className="text-muted-foreground">Карта на България</p>
-                <p className="text-sm text-muted-foreground">(placeholder)</p>
-              </div>
-            </div>
+          <div className="mx-auto max-w-4xl rounded-2xl border border-border/80 bg-white p-7 shadow-soft">
+            <h2 className="heading-card text-foreground">Национално покритие</h2>
+            <p className="mt-3 text-muted-foreground">Обслужваме обекти в цяла България с мобилен екип и осигурен транспорт.</p>
+            <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+              <MapPin className="h-4 w-4 text-primary" />
+              {siteConfig.address}
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Brands */}
       <BrandsSection />
-
-      {/* CTA */}
-      <section className="section-padding bg-primary">
-        <div className="container-section text-center">
-          <h2 className="heading-section text-primary-foreground mb-4">
-            Готови ли сте за соларна енергия?
-          </h2>
-          <p className="text-primary-foreground/80 text-lg mb-8 max-w-2xl mx-auto">
-            Обадете се днес за безплатна консултация и оферта. 
-            Ще ви помогнем да направите правилния избор.
-          </p>
-          <Button variant="accent" size="xl" asChild>
-            <a href="tel:+359888123456">
-              <Phone className="w-5 h-5 mr-2" />
-              0888 123 456
-            </a>
-          </Button>
-        </div>
-      </section>
     </Layout>
   );
 };

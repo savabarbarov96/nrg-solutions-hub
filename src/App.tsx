@@ -9,6 +9,7 @@ import SolarForHome from "./pages/SolarForHome";
 import SolarForBusiness from "./pages/SolarForBusiness";
 import Pricing from "./pages/Pricing";
 import Projects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
 import Promos from "./pages/Promos";
 import FAQ from "./pages/FAQ";
 import About from "./pages/About";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/фотоволтаици-за-бизнес" element={<SolarForBusiness />} />
           <Route path="/цени" element={<Pricing />} />
           <Route path="/проекти" element={<Projects />} />
+          <Route path="/проекти/:slug" element={<ProjectDetails />} />
           <Route path="/промоции" element={<Promos />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/за-нас" element={<About />} />

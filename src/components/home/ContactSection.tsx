@@ -1,89 +1,72 @@
 import { useState } from 'react';
-import { Phone, Send, MapPin, Clock, CheckCircle } from 'lucide-react';
+import { Phone, Send, MapPin, Clock3, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { siteConfig } from '@/content/site-content';
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In production, this would send to a backend
     setSubmitted(true);
   };
 
   return (
-    <section className="section-padding bg-background" id="оглед">
+    <section className="section-padding bg-muted/30" id="оглед">
       <div className="container-section">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Left - Contact Info */}
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           <div>
-            <span className="inline-block text-sm font-semibold text-primary mb-3">КОНТАКТИ</span>
-            <h2 className="heading-section text-foreground mb-4">
-              Свържете се с нас
-            </h2>
-            <p className="text-body mb-8">
-              Готови сме да отговорим на вашите въпроси и да изготвим безплатна оферта. 
-              Предпочитаното обаждане е най-бързият начин да получите информация.
+            <span className="section-eyebrow">Контакти</span>
+            <h2 className="heading-section mt-5 text-foreground">Запитване за оферта или безплатен оглед</h2>
+            <p className="text-body mt-4">
+              Най-бързият канал за старт е телефонно обаждане. Може да изпратите и форма, а ние ще върнем обаждане.
             </p>
 
-            {/* Primary CTA */}
-            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mb-8">
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center shrink-0">
-                  <Phone className="w-7 h-7 text-primary-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Обадете се сега</p>
-                  <a href="tel:+359888123456" className="text-2xl font-bold text-foreground hover:text-primary transition-colors">
-                    0888 123 456
-                  </a>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Безплатна консултация • Без ангажимент
-                  </p>
-                </div>
-              </div>
+            <div className="mt-8 rounded-2xl border border-primary/25 bg-white p-6 shadow-soft">
+              <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-primary">Приоритетен CTA</p>
+              <a href={siteConfig.phoneHref} className="inline-flex items-center gap-3 text-3xl font-extrabold text-foreground">
+                <Phone className="h-7 w-7 text-primary" />
+                {siteConfig.phoneDisplay}
+              </a>
+              <p className="mt-2 text-sm text-muted-foreground">Бърза консултация, без ангажимент.</p>
             </div>
 
-            {/* Info Cards */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/50">
-                <Clock className="w-6 h-6 text-primary" />
+            <div className="mt-6 space-y-3">
+              <div className="flex items-start gap-3 rounded-xl border border-border/70 bg-white p-4">
+                <Clock3 className="mt-0.5 h-5 w-5 text-primary" />
                 <div>
-                  <p className="font-medium text-foreground">Работно време</p>
-                  <p className="text-sm text-muted-foreground">Понеделник - Петък: 9:00 - 18:00</p>
+                  <p className="font-semibold text-foreground">Работно време</p>
+                  <p className="text-sm text-muted-foreground">{siteConfig.workingHours}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/50">
-                <MapPin className="w-6 h-6 text-primary" />
+              <div className="flex items-start gap-3 rounded-xl border border-border/70 bg-white p-4">
+                <MapPin className="mt-0.5 h-5 w-5 text-primary" />
                 <div>
-                  <p className="font-medium text-foreground">Офис</p>
-                  <p className="text-sm text-muted-foreground">Стара Загора, ул. Ген. Столетов 199</p>
+                  <p className="font-semibold text-foreground">Адрес</p>
+                  <p className="text-sm text-muted-foreground">{siteConfig.address}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right - Form */}
           <div className="card-elevated p-6 sm:p-8">
             {submitted ? (
-              <div className="flex flex-col items-center justify-center h-full py-12 text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle className="w-8 h-8 text-primary" />
+              <div className="flex h-full flex-col items-center justify-center py-12 text-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <CheckCircle2 className="h-8 w-8" />
                 </div>
-                <h3 className="heading-card text-foreground mb-2">Благодарим ви!</h3>
-                <p className="text-muted-foreground">
-                  Ще се свържем с вас възможно най-скоро.
-                </p>
+                <h3 className="heading-card text-foreground">Запитването е изпратено</h3>
+                <p className="mt-2 text-muted-foreground">Ще се свържем с вас възможно най-скоро.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
-                <h3 className="heading-card text-foreground mb-6">Заявете безплатен оглед</h3>
+                <h3 className="heading-card text-foreground">Кратка форма</h3>
 
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="name">Име *</Label>
                     <Input id="name" placeholder="Вашето име" required />
@@ -95,18 +78,18 @@ export function ContactSection() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="city">Град / Населено място *</Label>
-                  <Input id="city" placeholder="Къде се намира обектът?" required />
+                  <Label htmlFor="city">Град / населено място *</Label>
+                  <Input id="city" placeholder="Къде е обектът?" required />
                 </div>
 
                 <div className="space-y-3">
                   <Label>Тип обект</Label>
-                  <RadioGroup defaultValue="home" className="flex gap-4">
-                    <div className="flex items-center space-x-2">
+                  <RadioGroup defaultValue="home" className="flex gap-5">
+                    <div className="flex items-center gap-2">
                       <RadioGroupItem value="home" id="home" />
                       <Label htmlFor="home" className="font-normal cursor-pointer">Къща</Label>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <RadioGroupItem value="business" id="business" />
                       <Label htmlFor="business" className="font-normal cursor-pointer">Бизнес</Label>
                     </div>
@@ -114,22 +97,14 @@ export function ContactSection() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="message">Съобщение (по избор)</Label>
-                  <Textarea 
-                    id="message" 
-                    placeholder="Опишете накратко вашите нужди или въпроси..."
-                    rows={3}
-                  />
+                  <Label htmlFor="message">Съобщение</Label>
+                  <Textarea id="message" rows={3} placeholder="Кратко описание на нуждите ви" />
                 </div>
 
                 <Button variant="accent" size="lg" className="w-full gap-2">
-                  <Send className="w-5 h-5" />
+                  <Send className="h-4 w-4" />
                   Изпрати запитване
                 </Button>
-
-                <p className="text-xs text-muted-foreground text-center">
-                  С изпращането на формата се съгласявате да бъдете потърсени по телефон.
-                </p>
               </form>
             )}
           </div>

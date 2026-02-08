@@ -1,55 +1,35 @@
-import { MapPin, HeadphonesIcon, RefreshCw, Shield, Zap, CheckCircle } from 'lucide-react';
-
-interface FeatureProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}
-
-function FeatureCard({ icon, title, description }: FeatureProps) {
-  return (
-    <div className="group flex gap-4 p-5 rounded-2xl bg-background border border-border transition-all duration-300 hover:shadow-card hover:border-primary/20">
-      <div className="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-        {icon}
-      </div>
-      <div>
-        <h3 className="font-display font-semibold text-foreground mb-1">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-    </div>
-  );
-}
+import { MapPin, Headphones, RefreshCcw, ShieldCheck, PlusCircle, BadgeCheck } from 'lucide-react';
 
 const features = [
   {
-    icon: <MapPin className="w-6 h-6" />,
+    icon: MapPin,
     title: 'Национално покритие',
-    description: 'Работим в цяла България с мобилен екип и осигурен транспорт.',
+    description: 'Екип с транспорт и възможност за монтаж в цяла България.',
   },
   {
-    icon: <HeadphonesIcon className="w-6 h-6" />,
+    icon: Headphones,
     title: 'Безплатен мониторинг',
-    description: 'Следете производството в реално време през приложението Solis.',
+    description: 'Включен Solis мониторинг за всички клиенти без допълнителна такса.',
   },
   {
-    icon: <RefreshCw className="w-6 h-6" />,
+    icon: RefreshCcw,
     title: 'Дистанционна поддръжка',
-    description: 'При проблем — диагностика и troubleshooting от разстояние безплатно.',
+    description: 'Troubleshooting и бърза реакция при сигнал за проблем.',
   },
   {
-    icon: <Shield className="w-6 h-6" />,
+    icon: ShieldCheck,
     title: 'Политика за батерии',
-    description: 'Ако батерията е недостатъчна, монтажът на следващата е безплатен.',
+    description: 'При недостатъчна батерия монтажът на следващата е безплатен при условия.',
   },
   {
-    icon: <Zap className="w-6 h-6" />,
-    title: 'Надграждане на системи',
-    description: 'Добавяне на панели или батерии към съществуваща инсталация.',
+    icon: PlusCircle,
+    title: 'Надграждане',
+    description: 'Разширяване на съществуващи системи според ново потребление.',
   },
   {
-    icon: <CheckCircle className="w-6 h-6" />,
+    icon: BadgeCheck,
     title: 'Утвърдени марки',
-    description: 'Работим с Dyness, Jinko, JA Solar, Canadian Solar, Longi и други.',
+    description: 'Компоненти от партньори с доказано качество и сервиз.',
   },
 ];
 
@@ -57,41 +37,31 @@ export function WhyUsSection() {
   return (
     <section className="section-padding bg-muted/30">
       <div className="container-section">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Content */}
-          <div>
-            <span className="inline-block text-sm font-semibold text-primary mb-3">ЗАЩО НАС</span>
-            <h2 className="heading-section text-foreground mb-4">
-              Защо да изберете NRGsolution
-            </h2>
-            <p className="text-body mb-8">
-              Повече от просто монтаж — предлагаме пълна грижа за вашата соларна система: 
-              от консултацията до дългосрочната поддръжка. Клиентите ни могат да се обадят по всяко време.
-            </p>
+        <div className="mb-10 max-w-3xl">
+          <span className="section-eyebrow">Защо NRGsolution</span>
+          <h2 className="heading-section mt-5 text-foreground">Компания, ориентирана към резултат и поддръжка</h2>
+          <p className="text-body mt-4">
+            Конкурентите често акцентират на цена или само на продукти. Нашият фокус е цялостна услуга с ясни стъпки,
+            активна комуникация и поддръжка след монтажа.
+          </p>
+        </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-6">
-              <div>
-                <div className="text-3xl font-bold text-primary mb-1">500+</div>
-                <div className="text-sm text-muted-foreground">Монтирани системи</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-1">24/7</div>
-                <div className="text-sm text-muted-foreground">Мониторинг</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-1">100%</div>
-                <div className="text-sm text-muted-foreground">Покритие на България</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            {features.map((feature) => (
-              <FeatureCard key={feature.title} {...feature} />
-            ))}
-          </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <article
+                key={feature.title}
+                className="group rounded-2xl border border-border/80 bg-white p-5 shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-card"
+              >
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground">{feature.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

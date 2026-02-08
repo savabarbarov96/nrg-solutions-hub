@@ -1,150 +1,84 @@
-import { Phone, Check, Zap, Battery, Shield, Cable, Layers, Box } from 'lucide-react';
+import { Phone, Check, Zap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { siteConfig, solarPackages } from '@/content/site-content';
 
-interface PackageProps {
-  name: string;
-  power: string;
-  description: string;
-  features: string[];
-  popular?: boolean;
+interface PackagesSectionProps {
+  title?: string;
+  subtitle?: string;
 }
 
-function PackageCard({ name, power, description, features, popular }: PackageProps) {
+function PackageCard({ pkg }: { pkg: (typeof solarPackages)[number] }) {
   return (
-    <div className={cn(
-      "relative card-elevated p-6 sm:p-8 transition-all duration-300 hover:scale-[1.02]",
-      popular && "ring-2 ring-primary"
-    )}>
-      {popular && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full">
-            Най-популярен
-          </span>
-        </div>
+    <article
+      className={cn(
+        'relative h-full overflow-hidden rounded-2xl border border-border/80 bg-card p-6 shadow-card transition-all duration-500 hover:-translate-y-1 hover:shadow-elevated sm:p-7',
+        pkg.popular && 'ring-2 ring-primary/70'
+      )}
+    >
+      <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-[2.2rem] bg-primary/8" />
+
+      {pkg.popular && (
+        <span className="absolute left-5 top-5 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground">
+          <Sparkles className="h-3.5 w-3.5" />
+          Най-търсен пакет
+        </span>
       )}
 
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className={cn(
-            "w-12 h-12 rounded-xl flex items-center justify-center",
-            popular ? "bg-primary" : "bg-primary/10"
-          )}>
-            <Zap className={cn("w-6 h-6", popular ? "text-primary-foreground" : "text-primary")} />
-          </div>
-          <div>
-            <h3 className="heading-card text-foreground">{name}</h3>
-            <p className="text-3xl font-bold text-primary">{power}</p>
-          </div>
+      <div className={cn('mb-5 flex items-start gap-3', pkg.popular && 'mt-8')}>
+        <div className={cn('mt-1 flex h-11 w-11 items-center justify-center rounded-xl', pkg.popular ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary')}>
+          <Zap className="h-5 w-5" />
         </div>
-        <p className="text-muted-foreground text-sm">{description}</p>
+        <div>
+          <h3 className="heading-card text-foreground">{pkg.name}</h3>
+          <p className="text-3xl font-extrabold text-primary">{pkg.power}</p>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{pkg.idealFor}</p>
+        </div>
       </div>
 
-      <div className="text-2xl font-bold text-foreground mb-6">
-        По оферта
-        <span className="text-sm font-normal text-muted-foreground ml-2">/ с включен монтаж</span>
+      <p className="mb-4 text-sm text-muted-foreground">{pkg.description}</p>
+
+      <div className="mb-5 rounded-xl border border-dashed border-primary/25 bg-primary/5 px-4 py-3 text-sm">
+        <p className="font-bold text-foreground">Цена: По оферта</p>
+        <p className="text-xs text-muted-foreground">След безплатен оглед и финална конфигурация</p>
       </div>
 
-      <ul className="space-y-3 mb-8">
-        {features.map((feature) => (
-          <li key={feature} className="flex items-start gap-3 text-sm">
-            <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-            <span className="text-muted-foreground">{feature}</span>
+      <ul className="mb-7 space-y-2.5">
+        {pkg.includes.map((feature) => (
+          <li key={feature} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+            <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            {feature}
           </li>
         ))}
       </ul>
 
-      <Button 
-        variant={popular ? "accent" : "outline"} 
-        size="lg" 
-        className="w-full gap-2"
-        asChild
-      >
-        <a href="tel:+359888123456">
-          <Phone className="w-5 h-5" />
+      <Button variant={pkg.popular ? 'accent' : 'outline'} size="lg" className="w-full gap-2" asChild>
+        <a href={siteConfig.phoneHref}>
+          <Phone className="h-5 w-5" />
           Обади се за оферта
         </a>
       </Button>
-    </div>
+    </article>
   );
 }
 
-const packages: PackageProps[] = [
-  {
-    name: 'Старт',
-    power: '8 kW',
-    description: 'Идеален за малки домакинства с умерена консумация.',
-    features: [
-      'Хибриден инвертор 8kW',
-      'Соларни панели 10-12 бр.',
-      'Батерия за съхранение',
-      'DC/AC кабели и защити',
-      'Алуминиева конструкция',
-      'Профили, клеми, държачи',
-      'Безплатен мониторинг (Solis)',
-    ],
-  },
-  {
-    name: 'Оптимум',
-    power: '12 kW',
-    description: 'Балансирано решение за средни до големи домове.',
-    features: [
-      'Хибриден инвертор 12kW',
-      'Соларни панели 16-20 бр.',
-      'Батерия за съхранение',
-      'DC/AC кабели и защити',
-      'Алуминиева конструкция',
-      'Профили, клеми, държачи',
-      'Безплатен мониторинг (Solis)',
-    ],
-    popular: true,
-  },
-  {
-    name: 'Макс',
-    power: '15 kW',
-    description: 'За големи домове и малък бизнес с висока консумация.',
-    features: [
-      'Хибриден инвертор 15kW',
-      'Соларни панели 20-25 бр.',
-      'Батерия за съхранение',
-      'DC/AC кабели и защити',
-      'Алуминиева конструкция',
-      'Профили, клеми, държачи',
-      'Безплатен мониторинг (Solis)',
-    ],
-  },
-];
-
-export function PackagesSection() {
+export function PackagesSection({
+  title = 'Пакети 8 / 12 / 15 kW',
+  subtitle = 'Всеки пакет включва хибриден инвертор, панели, батерия, конструкция, защити, кабели и професионален монтаж.',
+}: PackagesSectionProps) {
   return (
     <section className="section-padding bg-muted/30">
       <div className="container-section">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="inline-block text-sm font-semibold text-primary mb-3">ПАКЕТИ</span>
-          <h2 className="heading-section text-foreground mb-4">
-            Готови решения за вашия дом
-          </h2>
-          <p className="text-body">
-            Изберете мощност според вашите нужди. Всеки пакет включва пълен монтаж и безплатен мониторинг.
-          </p>
+        <div className="mb-12 text-center">
+          <span className="section-eyebrow">Пакети</span>
+          <h2 className="heading-section mt-5 text-foreground">{title}</h2>
+          <p className="text-body mx-auto mt-4 max-w-3xl">{subtitle}</p>
         </div>
 
-        {/* Packages Grid */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {packages.map((pkg) => (
-            <PackageCard key={pkg.power} {...pkg} />
+        <div className="grid gap-6 md:grid-cols-3 lg:gap-8">
+          {solarPackages.map((pkg) => (
+            <PackageCard key={pkg.id} pkg={pkg} />
           ))}
-        </div>
-
-        {/* Bottom Note */}
-        <div className="mt-10 text-center">
-          <p className="text-sm text-muted-foreground">
-            Нужна ви е по-голяма мощност или специфично решение за бизнес?{' '}
-            <a href="tel:+359888123456" className="text-primary font-semibold hover:underline">
-              Обадете се за индивидуална оферта.
-            </a>
-          </p>
         </div>
       </div>
     </section>

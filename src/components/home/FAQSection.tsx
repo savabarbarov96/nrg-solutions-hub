@@ -1,84 +1,45 @@
-import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-
-const faqs = [
-  {
-    question: 'Работите ли с апартаменти?',
-    answer: 'Монтажът на фотоволтаици за апартаменти е по-сложен процес, тъй като е необходимо разрешение за монтаж на общия покрив от етажната собственост. Обадете се на 0888 123 456 за повече информация и консултация по вашия конкретен случай.',
-  },
-  {
-    question: 'Безплатен ли е огледът?',
-    answer: 'Да, огледът е напълно безплатен. Наш специалист ще посети обекта, ще направи оценка и ще изготви детайлна оферта според вашите нужди и особеностите на покрива/терена.',
-  },
-  {
-    question: 'Какво включва мониторингът и поддръжката?',
-    answer: 'Всички наши клиенти получават безплатен достъп до приложението Solis за мониторинг в реално време. При възникнал проблем предлагаме дистанционна диагностика и troubleshooting. Можете да се обадите по всяко време.',
-  },
-  {
-    question: 'Може ли надграждане на съществуваща система?',
-    answer: 'Да, предлагаме надграждане на съществуващи фотоволтаични системи — добавяне на панели, батерии или смяна на инвертор. Обадете се за оценка на възможностите.',
-  },
-  {
-    question: 'Какво е нужно за узаконяване (лична консумация)?',
-    answer: 'При системи за лична консумация узаконяването става чрез упълномощаване към доставчика на електричество. Ние съдействаме напълно в този процес, като ви обясняваме всяка стъпка.',
-  },
-  {
-    question: 'Колко време отнема процесът?',
-    answer: 'Времето зависи от спецификата на проекта — размер на системата, достъпност на покрива, административни процедури. Обикновено от първия контакт до пускане в експлоатация са необходими няколко седмици. Обадете се за по-точна оценка.',
-  },
-];
+import { faqItems, siteConfig } from '@/content/site-content';
 
 export function FAQSection() {
+  const teaserFaqs = faqItems.slice(0, 6);
+
   return (
-    <section className="section-padding bg-muted/30">
+    <section className="section-padding bg-background">
       <div className="container-section">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Header */}
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
           <div>
-            <span className="inline-block text-sm font-semibold text-primary mb-3">ВЪПРОСИ</span>
-            <h2 className="heading-section text-foreground mb-4">
-              Често задавани въпроси
-            </h2>
-            <p className="text-body mb-8">
-              Отговори на най-честите въпроси за фотоволтаичните системи и нашите услуги. 
-              Не намирате отговор? Обадете се или пишете ни.
+            <span className="section-eyebrow">FAQ</span>
+            <h2 className="heading-section mt-5 text-foreground">Често задавани въпроси</h2>
+            <p className="text-body mt-4">
+              Включили сме ключовите въпроси за апартаменти, оглед, поддръжка, надграждане и узаконяване.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Button variant="accent" asChild>
-                <a href="tel:+359888123456">Обади се: 0888 123 456</a>
+                <a href={siteConfig.phoneHref}>Обади се: {siteConfig.phoneDisplay}</a>
               </Button>
               <Button variant="outline" asChild>
-                <Link to="/faq">Всички въпроси</Link>
+                <Link to="/faq">Пълна FAQ страница</Link>
               </Button>
             </div>
           </div>
 
-          {/* Accordion */}
-          <div>
-            <Accordion type="single" collapsible className="space-y-3">
-              {faqs.map((faq, index) => (
-                <AccordionItem 
-                  key={index} 
-                  value={`item-${index}`}
-                  className="bg-background rounded-xl border border-border px-5 data-[state=open]:shadow-card"
-                >
-                  <AccordionTrigger className="text-left font-display font-semibold text-foreground hover:no-underline py-4">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-4">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
+          <Accordion type="single" collapsible className="space-y-3">
+            {teaserFaqs.map((faq, index) => (
+              <AccordionItem
+                key={faq.question}
+                value={`faq-${index}`}
+                className="rounded-xl border border-border/80 bg-muted/30 px-5 data-[state=open]:bg-white data-[state=open]:shadow-soft"
+              >
+                <AccordionTrigger className="py-4 text-left font-display text-base font-semibold text-foreground hover:no-underline">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 text-sm text-muted-foreground">{faq.answer}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </div>
     </section>

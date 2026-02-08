@@ -1,134 +1,136 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
-import { Phone, MapPin, Zap, Filter } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Phone, MapPin, Zap, Filter, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { projects, siteConfig } from '@/content/site-content';
 
-type ProjectType = 'all' | 'home' | 'business';
+type ProjectFilter = 'all' | 'home' | 'business';
 
-interface Project {
-  id: number;
-  image: string;
-  city: string;
-  power: string;
-  type: 'home' | 'business';
-  description: string;
-}
-
-// Placeholder projects - in production these would come from a CMS/database
-const projects: Project[] = [
-  { id: 1, image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&h=600&fit=crop', city: 'София', power: '12 kW', type: 'home', description: 'Покривна инсталация на еднофамилна къща с южно изложение.' },
-  { id: 2, image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&h=600&fit=crop', city: 'Пловдив', power: '15 kW', type: 'business', description: 'Складова база с покривен монтаж и оптимизирана конструкция.' },
-  { id: 3, image: 'https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=800&h=600&fit=crop', city: 'Варна', power: '8 kW', type: 'home', description: 'Вила край морето с интегрирана система за съхранение.' },
-  { id: 4, image: 'https://images.unsplash.com/photo-1559302504-64aae6ca6b6d?w=800&h=600&fit=crop', city: 'Бургас', power: '12 kW', type: 'home', description: 'Къща с голям двор и наземен монтаж на панелите.' },
-  { id: 5, image: 'https://images.unsplash.com/photo-1611365892117-00ac5ef43c90?w=800&h=600&fit=crop', city: 'Стара Загора', power: '20 kW', type: 'business', description: 'Производствено предприятие с голяма консумация.' },
-  { id: 6, image: 'https://images.unsplash.com/photo-1595437193398-f24279553f4f?w=800&h=600&fit=crop', city: 'Русе', power: '10 kW', type: 'home', description: 'Модерна къща с интелигентно управление на енергията.' },
-  { id: 7, image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&h=600&fit=crop', city: 'Плевен', power: '15 kW', type: 'home', description: 'Голям дом с висока консумация и климатични системи.' },
-  { id: 8, image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&h=600&fit=crop', city: 'Велико Търново', power: '25 kW', type: 'business', description: 'Хотел с комбинирана система за отопление и ток.' },
-  { id: 9, image: 'https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=800&h=600&fit=crop', city: 'Благоевград', power: '8 kW', type: 'home', description: 'Къща в планината с адаптирана конструкция.' },
+const typeFilters: { value: ProjectFilter; label: string }[] = [
+  { value: 'all', label: 'Всички' },
+  { value: 'home', label: 'Дом' },
+  { value: 'business', label: 'Бизнес' },
 ];
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project }: { project: (typeof projects)[number] }) {
   return (
-    <div className="group card-elevated overflow-hidden">
+    <Link to={`/проекти/${project.slug}`} className="group overflow-hidden rounded-2xl border border-border/80 bg-white shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-card">
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img 
-          src={project.image} 
-          alt={`Соларна система ${project.power} в ${project.city}`} 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        <img
+          src={project.image}
+          alt={`${project.title} - ${project.city}`}
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/90 bg-primary/80 px-2.5 py-1 rounded-full">
-              <Zap className="w-3 h-3" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
+
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <div className="mb-2 flex items-center gap-2 text-xs">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/85 px-2.5 py-1 font-semibold text-primary-foreground">
+              <Zap className="h-3.5 w-3.5" />
               {project.power}
             </span>
-            <span className="text-xs font-medium text-primary-foreground/70 bg-foreground/30 px-2.5 py-1 rounded-full">
+            <span className="rounded-full bg-white/20 px-2.5 py-1 font-semibold text-white">
               {project.type === 'home' ? 'Дом' : 'Бизнес'}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-primary-foreground">
-            <MapPin className="w-4 h-4" />
-            <span className="font-medium">{project.city}</span>
-          </div>
+          <p className="text-sm font-bold text-white">{project.title}</p>
+          <p className="mt-1 inline-flex items-center gap-1 text-xs text-white/85">
+            <MapPin className="h-3.5 w-3.5" />
+            {project.city}
+          </p>
         </div>
       </div>
-      <div className="p-5">
-        <p className="text-sm text-muted-foreground">{project.description}</p>
+      <div className="p-4">
+        <p className="text-sm text-muted-foreground">{project.summary}</p>
+        <span className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-primary">
+          Виж case study
+          <ArrowRight className="h-4 w-4" />
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }
 
 const Projects = () => {
-  const [filter, setFilter] = useState<ProjectType>('all');
+  const [typeFilter, setTypeFilter] = useState<ProjectFilter>('all');
+  const [cityFilter, setCityFilter] = useState<string>('all');
 
-  const filteredProjects = projects.filter(
-    (project) => filter === 'all' || project.type === filter
-  );
+  const cityOptions = useMemo(() => ['all', ...Array.from(new Set(projects.map((p) => p.city)))], []);
+
+  const filteredProjects = projects.filter((project) => {
+    const typeMatch = typeFilter === 'all' || project.type === typeFilter;
+    const cityMatch = cityFilter === 'all' || project.city === cityFilter;
+    return typeMatch && cityMatch;
+  });
 
   return (
     <Layout>
-      {/* Hero */}
-      <section className="section-padding bg-gradient-to-br from-muted/50 to-background">
+      <section className="section-padding bg-[var(--gradient-hero)]">
         <div className="container-section">
-          <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-block text-sm font-semibold text-primary mb-4">ПОРТФОЛИО</span>
-            <h1 className="heading-display text-foreground mb-6">
-              Нашите проекти
-            </h1>
-            <p className="text-body text-lg">
-              Примери от монтирани системи в цяла България — за домове и бизнес клиенти.
-            </p>
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="section-eyebrow">Проекти / Портфолио</span>
+            <h1 className="heading-display mt-5 text-foreground">Реални изпълнения</h1>
+            <p className="text-body mt-5 text-lg">Лесно редактиране: добавете нов обект в `src/content/site-content.ts` и той ще се появи тук и в home teaser секцията.</p>
           </div>
         </div>
       </section>
 
-      {/* Projects Grid */}
       <section className="section-padding bg-background">
         <div className="container-section">
-          {/* Filter */}
-          <div className="flex items-center justify-center gap-2 mb-10">
-            <Filter className="w-5 h-5 text-muted-foreground" />
-            <div className="flex gap-2">
-              {[
-                { value: 'all', label: 'Всички' },
-                { value: 'home', label: 'Домове' },
-                { value: 'business', label: 'Бизнес' },
-              ].map((option) => (
+          <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-border/80 bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+              <Filter className="h-4 w-4 text-primary" />
+              Филтрирай
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {typeFilters.map((option) => (
                 <button
                   key={option.value}
-                  onClick={() => setFilter(option.value as ProjectType)}
+                  type="button"
+                  onClick={() => setTypeFilter(option.value)}
                   className={cn(
-                    "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-                    filter === option.value
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    'rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
+                    typeFilter === option.value
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-white text-muted-foreground hover:bg-primary/10 hover:text-foreground'
                   )}
                 >
                   {option.label}
                 </button>
               ))}
             </div>
+            <div className="flex items-center gap-2 text-sm">
+              <label htmlFor="city-filter" className="font-semibold text-muted-foreground">Град:</label>
+              <select
+                id="city-filter"
+                value={cityFilter}
+                onChange={(e) => setCityFilter(e.target.value)}
+                className="rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-foreground"
+              >
+                {cityOptions.map((city) => (
+                  <option key={city} value={city}>
+                    {city === 'all' ? 'Всички градове' : city}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredProjects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>
 
-          {/* CTA */}
-          <div className="mt-12 text-center">
-            <p className="text-muted-foreground mb-6">
-              Искате вашият проект да е следващият?
-            </p>
-            <Button variant="accent" size="lg" asChild>
-              <a href="tel:+359888123456">
-                <Phone className="w-5 h-5 mr-2" />
-                Обади се за оферта
+          <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
+            <h2 className="heading-card text-foreground">Вашият проект може да е следващият</h2>
+            <p className="mt-2 text-muted-foreground">Обаждането е най-бързият начин за старт.</p>
+            <Button variant="accent" size="lg" className="mt-5" asChild>
+              <a href={siteConfig.phoneHref}>
+                <Phone className="mr-2 h-5 w-5" />
+                {siteConfig.phoneDisplay}
               </a>
             </Button>
           </div>

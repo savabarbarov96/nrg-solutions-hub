@@ -2,198 +2,146 @@ import { Layout } from '@/components/layout/Layout';
 import { Link } from 'react-router-dom';
 import { Phone, ArrowRight, Home, Building2, Battery, HeadphonesIcon, FileCheck, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { siteConfig } from '@/content/site-content';
 
-interface ServiceCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  href: string;
-  badge?: string;
-}
-
-function ServiceCard({ icon, title, description, href, badge }: ServiceCardProps) {
-  return (
-    <Link 
-      to={href} 
-      className="group card-elevated p-6 sm:p-8 transition-all duration-300 hover:scale-[1.02] block relative"
-    >
-      {badge && (
-        <span className="absolute -top-3 right-4 bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full">
-          {badge}
-        </span>
-      )}
-      <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary transition-colors">
-        <div className="text-primary group-hover:text-primary-foreground transition-colors">
-          {icon}
-        </div>
-      </div>
-      <h3 className="heading-card text-foreground mb-3">{title}</h3>
-      <p className="text-muted-foreground text-sm mb-4">{description}</p>
-      <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-        Научи повече
-        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-      </div>
-    </Link>
-  );
-}
-
-const services: ServiceCardProps[] = [
+const services = [
   {
-    icon: <Home className="w-7 h-7" />,
-    title: 'Фотоволтаици за дома',
-    description: 'Намалете сметките за ток с до 90%. Пълен процес от консултацията до мониторинга.',
+    icon: Home,
+    title: 'Фотоволтаици за дом',
+    description: 'Решения за къщи с покрив или двор за по-ниски сметки и повече контрол.',
     href: '/фотоволтаици-за-дома',
   },
   {
-    icon: <Building2 className="w-7 h-7" />,
+    icon: Building2,
     title: 'Фотоволтаици за бизнес',
-    description: 'Контролирайте разходите на предприятието и осигурете предвидими енергийни разходи.',
+    description: 'Проекти за предприятия с фокус върху предвидими и оптимизирани енергийни разходи.',
     href: '/фотоволтаици-за-бизнес',
   },
   {
-    icon: <Battery className="w-7 h-7" />,
+    icon: Battery,
     title: 'Батерии и надграждане',
-    description: 'Добавете батерии или панели към съществуваща система. Политика за безплатен монтаж при недостатъчна батерия.',
-    href: '/услуги#батерии',
+    description: 'Надграждане на съществуващи системи + политика за батерии при условия.',
+    href: '#батерии',
   },
   {
-    icon: <HeadphonesIcon className="w-7 h-7" />,
+    icon: HeadphonesIcon,
     title: 'Мониторинг и поддръжка',
-    description: 'Безплатен мониторинг чрез Solis, дистанционна диагностика и troubleshooting за всички клиенти.',
-    href: '/услуги#мониторинг',
+    description: 'Безплатен мониторинг, дистанционна диагностика и troubleshooting.',
+    href: '#мониторинг',
   },
   {
-    icon: <FileCheck className="w-7 h-7" />,
+    icon: FileCheck,
     title: 'Узаконяване',
-    description: 'При лична консумация — упълномощаване към доставчика на електричество. Пълно съдействие.',
-    href: '/услуги#узаконяване',
+    description: 'Лична консумация: чрез упълномощаване към доставчика на ток, с пълно съдействие.',
+    href: '#узаконяване',
   },
   {
-    icon: <Zap className="w-7 h-7" />,
-    title: 'EV зарядни станции',
-    description: 'Станции за зареждане на електромобили. Обадете се за информация и оферта.',
-    href: '/услуги#ev-charging',
-    badge: 'Скоро',
+    icon: Zap,
+    title: 'EV charging station',
+    description: 'Placeholder секция. Детайлите за услугата ще бъдат допълнени.',
+    href: '#ev-charging',
   },
 ];
 
 const Services = () => {
   return (
     <Layout>
-      {/* Hero */}
-      <section className="section-padding bg-gradient-to-br from-muted/50 to-background">
+      <section className="section-padding bg-[var(--gradient-hero)]">
         <div className="container-section">
-          <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-block text-sm font-semibold text-primary mb-4">УСЛУГИ</span>
-            <h1 className="heading-display text-foreground mb-6">
-              Цялостни соларни решения
-            </h1>
-            <p className="text-body text-lg mb-8">
-              От консултацията през монтажа до дългосрочната поддръжка — 
-              предлагаме пълен пакет услуги за вашата фотоволтаична система.
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="section-eyebrow">Услуги</span>
+            <h1 className="heading-display mt-5 text-foreground">Пълен процес: от идея до работеща система</h1>
+            <p className="text-body mt-5">
+              Основен CTA е обаждане. Втори CTA е безплатен оглед на място.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="accent" size="lg" className="gap-2" asChild>
-                <a href="tel:+359888123456">
-                  <Phone className="w-5 h-5" />
-                  Обади се за консултация
-                </a>
-              </Button>
-            </div>
+            <Button variant="accent" size="lg" className="mt-7" asChild>
+              <a href={siteConfig.phoneHref}>
+                <Phone className="mr-2 h-5 w-5" />
+                Обади се за консултация
+              </a>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Services Grid */}
       <section className="section-padding bg-background">
         <div className="container-section">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service) => (
-              <ServiceCard key={service.title} {...service} />
-            ))}
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {services.map((service) => {
+              const Icon = service.icon;
+              const href = service.href.startsWith('#') ? `/услуги${service.href}` : service.href;
+
+              return (
+                <Link
+                  key={service.title}
+                  to={href}
+                  className="group rounded-2xl border border-border/80 bg-white p-6 shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-card"
+                >
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h2 className="text-lg font-bold text-foreground">{service.title}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">{service.description}</p>
+                  <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                    Виж детайли
+                    <ArrowRight className="h-4 w-4" />
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Battery Policy */}
       <section id="батерии" className="section-padding bg-muted/30">
         <div className="container-section">
-          <div className="max-w-3xl mx-auto">
-            <div className="card-elevated p-8 border-l-4 border-l-primary">
-              <h2 className="heading-card text-foreground mb-4">
-                Политика за батерии
-              </h2>
-              <p className="text-muted-foreground mb-4">
-                Ако монтираната батерия се окаже недостатъчна за вашите нужди, 
-                монтажът на следващата батерия е <strong className="text-foreground">безплатен</strong>.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                * Условието е валидно при първоначална оценка от наша страна и последваща промяна в консумацията.
-                Свържете се с нас за детайли.
-              </p>
-            </div>
+          <div className="mx-auto max-w-3xl rounded-2xl border border-primary/20 bg-white p-7 shadow-soft">
+            <h2 className="heading-card text-foreground">Батерии и надграждане</h2>
+            <p className="mt-3 text-muted-foreground">
+              Ако монтирана батерия се окаже недостатъчна, монтажът на следваща батерия е безплатен.
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Условие: валидно при първоначална оценка от NRGsolution и доказана необходимост от допълнителен капацитет.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Monitoring Section */}
       <section id="мониторинг" className="section-padding bg-background">
         <div className="container-section">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <span className="inline-block text-sm font-semibold text-primary mb-3">МОНИТОРИНГ</span>
-              <h2 className="heading-section text-foreground mb-4">
-                Безплатен мониторинг и поддръжка
-              </h2>
-              <p className="text-body mb-6">
-                Всички наши клиенти получават достъп до приложението <strong className="text-foreground">Solis</strong> за 
-                мониторинг на производството в реално време. При възникнал проблем — дистанционна диагностика без допълнителни такси.
+          <div className="grid gap-8 lg:grid-cols-2">
+            <article className="rounded-2xl border border-border/80 bg-white p-7 shadow-soft">
+              <h2 className="heading-card text-foreground">Мониторинг и поддръжка</h2>
+              <p className="mt-3 text-muted-foreground">
+                Всеки клиент получава безплатен мониторинг през Solis и дистанционна поддръжка при проблем.
               </p>
-              <ul className="space-y-3 mb-8">
-                {[
-                  'Реално време производство и консумация',
-                  'Известия при аномалии',
-                  'Дистанционна диагностика',
-                  'Телефонна поддръжка по всяко време',
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-muted-foreground">
-                    <div className="w-5 h-5 bg-primary/10 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-primary rounded-full" />
-                    </div>
-                    {item}
-                  </li>
-                ))}
+              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li>• Реално време за производство и консумация</li>
+                <li>• Troubleshooting по телефон и дистанционно</li>
+                <li>• Подготовка за бъдещи надграждания</li>
               </ul>
-              <Button variant="outline" asChild>
-                <a href="tel:+359888123456">Свържете се при проблем</a>
-              </Button>
-            </div>
-            <div className="bg-muted/50 rounded-2xl p-8 aspect-square flex items-center justify-center">
-              <div className="text-center">
-                <HeadphonesIcon className="w-16 h-16 text-primary/50 mx-auto mb-4" />
-                <p className="text-muted-foreground">Демо на Solis приложението</p>
-              </div>
-            </div>
+            </article>
+
+            <article id="узаконяване" className="rounded-2xl border border-border/80 bg-white p-7 shadow-soft">
+              <h2 className="heading-card text-foreground">Узаконяване (лична консумация)</h2>
+              <p className="mt-3 text-muted-foreground">
+                Обясняваме процеса на разбираем език: за лична консумация става чрез упълномощаване към доставчика на ток.
+              </p>
+              <p className="mt-3 text-sm text-muted-foreground">Водим клиента през всяка стъпка, без излишна бюрократична тежест.</p>
+            </article>
           </div>
         </div>
       </section>
 
-      {/* EV Charging Placeholder */}
       <section id="ev-charging" className="section-padding bg-muted/30">
         <div className="container-section">
-          <div className="max-w-3xl mx-auto text-center">
-            <Zap className="w-16 h-16 text-primary/50 mx-auto mb-6" />
-            <span className="inline-block text-sm font-semibold text-primary mb-3">ОЧАКВАЙТЕ СКОРО</span>
-            <h2 className="heading-section text-foreground mb-4">
-              EV зарядни станции
-            </h2>
-            <p className="text-body mb-8">
-              Добавете станция за зареждане на електромобил към вашата соларна система. 
-              Детайлите за услугата ще бъдат допълнени скоро.
-            </p>
-            <Button variant="accent" asChild>
-              <a href="tel:+359888123456">
-                <Phone className="w-5 h-5 mr-2" />
+          <div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-primary/35 bg-white p-8 text-center">
+            <span className="section-eyebrow">Placeholder</span>
+            <h2 className="heading-section mt-5 text-foreground">EV charging station</h2>
+            <p className="text-body mt-4">Детайлите за услугата ще се допълнят. За момента: обадете се за предварителна информация.</p>
+            <Button variant="accent" className="mt-6" asChild>
+              <a href={siteConfig.phoneHref}>
+                <Phone className="mr-2 h-5 w-5" />
                 Обади се за информация
               </a>
             </Button>

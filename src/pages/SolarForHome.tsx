@@ -1,104 +1,84 @@
 import { Layout } from '@/components/layout/Layout';
-import { Phone, Calendar, CheckCircle, Home as HomeIcon, Lightbulb, Shield, Wallet } from 'lucide-react';
+import { Phone, CalendarDays, Home, Wallet, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PackagesSection } from '@/components/home/PackagesSection';
 import { ProcessSection } from '@/components/home/ProcessSection';
 import { FAQSection } from '@/components/home/FAQSection';
 import { ContactSection } from '@/components/home/ContactSection';
+import { siteConfig } from '@/content/site-content';
+import { Pricing as PricingSection } from '@/components/ui/single-pricing-card-1';
 
 const benefits = [
   {
-    icon: <Wallet className="w-6 h-6" />,
-    title: 'Намалете сметките',
-    description: 'Спестете до 90% от разходите за електроенергия с правилно оразмерена система.',
+    icon: Wallet,
+    title: 'По-ниски сметки',
+    description: 'Фотоволтаици за къщи с фокус върху реално намаляване на разходите за ток.',
   },
   {
-    icon: <Shield className="w-6 h-6" />,
+    icon: ShieldCheck,
     title: 'Енергийна независимост',
-    description: 'Произвеждайте собствена енергия и намалете зависимостта от мрежата.',
+    description: 'По-малка зависимост от промени в цените на електроенергията.',
   },
   {
-    icon: <Lightbulb className="w-6 h-6" />,
-    title: 'Пълен контрол',
-    description: 'Следете производството в реално време през мобилното приложение Solis.',
-  },
-  {
-    icon: <HomeIcon className="w-6 h-6" />,
-    title: 'Повишена стойност',
-    description: 'Соларната система увеличава пазарната стойност на вашия имот.',
+    icon: SlidersHorizontal,
+    title: 'Контрол през Solis',
+    description: 'Следене на производство и консумация през приложение.',
   },
 ];
 
 const SolarForHome = () => {
   return (
     <Layout>
-      {/* Hero */}
-      <section className="section-padding bg-gradient-to-br from-muted/50 to-background">
+      <section className="section-padding bg-[var(--gradient-hero)]">
         <div className="container-section">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
-              <span className="inline-block text-sm font-semibold text-primary mb-4">ЗА ДОМА</span>
-              <h1 className="heading-display text-foreground mb-6">
-                Фотоволтаици за вашия дом
-              </h1>
-              <p className="text-body text-lg mb-6">
-                Намалете сметките за ток и станете енергийно независими. 
-                Предлагаме цялостни решения за къщи с покрив или двор в цяла България.
+              <span className="section-eyebrow">Фотоволтаици за дома</span>
+              <h1 className="heading-display mt-5 text-foreground">Решения за къщи в цяла България</h1>
+              <p className="text-body mt-5">
+                За къщи с покрив или двор. Апартаменти не са основен фокус и изискват допълнителни разрешения.
               </p>
-              <ul className="space-y-3 mb-8">
-                {['Безплатен оглед и консултация', 'Професионален монтаж', 'Безплатен мониторинг чрез Solis', 'Дистанционна поддръжка'].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-muted-foreground">
-                    <CheckCircle className="w-5 h-5 text-primary" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button variant="accent" size="xl" className="gap-3" asChild>
-                  <a href="tel:+359888123456">
-                    <Phone className="w-5 h-5" />
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <Button variant="accent" size="lg" asChild>
+                  <a href={siteConfig.phoneHref}>
+                    <Phone className="mr-2 h-5 w-5" />
                     Обади се сега
                   </a>
                 </Button>
-                <Button variant="outline" size="xl" className="gap-3" asChild>
+                <Button variant="outline" size="lg" asChild>
                   <a href="/контакти#оглед">
-                    <Calendar className="w-5 h-5" />
+                    <CalendarDays className="mr-2 h-5 w-5" />
                     Безплатен оглед
                   </a>
                 </Button>
               </div>
             </div>
-            <div className="bg-muted/50 rounded-2xl aspect-[4/3] flex items-center justify-center">
-              <HomeIcon className="w-24 h-24 text-primary/30" />
+            <div className="flex aspect-[4/3] items-center justify-center rounded-3xl border border-border/80 bg-white shadow-card">
+              <Home className="h-20 w-20 text-primary/45" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Benefits */}
       <section className="section-padding bg-background">
         <div className="container-section">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="inline-block text-sm font-semibold text-primary mb-3">ПОЛЗИ</span>
-            <h2 className="heading-section text-foreground">
-              Защо да инвестирате в соларна система
-            </h2>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {benefits.map((benefit) => (
-              <div key={benefit.title} className="card-elevated p-6 text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4 text-primary">
-                  {benefit.icon}
-                </div>
-                <h3 className="font-display font-semibold text-foreground mb-2">{benefit.title}</h3>
-                <p className="text-sm text-muted-foreground">{benefit.description}</p>
-              </div>
-            ))}
+          <div className="grid gap-5 md:grid-cols-3">
+            {benefits.map((benefit) => {
+              const Icon = benefit.icon;
+              return (
+                <article key={benefit.title} className="rounded-2xl border border-border/80 bg-white p-6 shadow-soft">
+                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h2 className="text-lg font-bold text-foreground">{benefit.title}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">{benefit.description}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <PackagesSection />
+      <PricingSection />
       <ProcessSection />
       <FAQSection />
       <ContactSection />

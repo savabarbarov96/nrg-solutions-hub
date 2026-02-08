@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Phone, MapPin, Mail, Sun, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Phone, MapPin, Mail, SunMedium, Sparkles } from 'lucide-react';
+import { brands, siteConfig } from '@/content/site-content';
 
 const navigation = {
   услуги: [
@@ -7,74 +8,47 @@ const navigation = {
     { name: 'Фотоволтаици за бизнес', href: '/фотоволтаици-за-бизнес' },
     { name: 'Батерии и надграждане', href: '/услуги#батерии' },
     { name: 'Мониторинг и поддръжка', href: '/услуги#мониторинг' },
-    { name: 'EV зарядни станции', href: '/услуги#ev-charging' },
+    { name: 'EV charging station', href: '/услуги#ev-charging' },
   ],
   компания: [
     { name: 'За нас', href: '/за-нас' },
     { name: 'Проекти', href: '/проекти' },
     { name: 'Промоции', href: '/промоции' },
-    { name: 'Често задавани въпроси', href: '/faq' },
+    { name: 'FAQ', href: '/faq' },
     { name: 'Контакти', href: '/контакти' },
   ],
 };
 
-const brands = ['Dyness', 'Diae', 'Jinko', 'JA Solar', 'Canadian Solar', 'Longi'];
-
 export function Footer() {
   return (
-    <footer className="bg-foreground text-primary-foreground">
-      {/* Main Footer */}
-      <div className="container-section section-padding">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
-          {/* Brand Column */}
+    <footer className="relative overflow-hidden bg-foreground text-primary-foreground">
+      <div className="orb orb-teal left-[-9rem] top-16 h-52 w-52" />
+      <div className="orb orb-accent bottom-10 right-[-6rem] h-44 w-44" />
+
+      <div className="container-section relative section-padding">
+        <div className="grid gap-10 lg:grid-cols-4">
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-6">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary">
-                <Sun className="w-6 h-6 text-primary-foreground" />
+            <Link to="/" className="mb-6 inline-flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-card">
+                <SunMedium className="h-5 w-5" />
               </div>
-              <span className="font-display text-xl font-bold text-primary-foreground">
-                NRG<span className="text-accent">solution</span>
-              </span>
+              <div>
+                <p className="font-display text-xl font-bold leading-none">NRGsolution</p>
+                <p className="text-xs tracking-[0.16em] text-primary-foreground/65 uppercase">Solar Energy</p>
+              </div>
             </Link>
-            <p className="text-primary-foreground/70 text-sm leading-relaxed mb-6">
-              Професионален монтаж на фотоволтаични системи за дома и бизнеса в цяла България. 
-              Безплатен мониторинг и дистанционна поддръжка.
+            <p className="text-sm leading-relaxed text-primary-foreground/75">
+              Изграждане на фотоволтаични системи за къщи и предприятия в цяла България.
+              Приоритет: бърза консултация и оферта по телефон.
             </p>
-            <div className="flex gap-3">
-              <a 
-                href="#" 
-                className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary-foreground/10 hover:bg-primary transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a 
-                href="#" 
-                className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary-foreground/10 hover:bg-primary transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a 
-                href="#" 
-                className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary-foreground/10 hover:bg-primary transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-            </div>
           </div>
 
-          {/* Services Column */}
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">Услуги</h3>
+            <h3 className="mb-4 font-display text-lg">Услуги</h3>
             <ul className="space-y-3">
               {navigation.услуги.map((item) => (
                 <li key={item.name}>
-                  <Link 
-                    to={item.href} 
-                    className="text-primary-foreground/70 hover:text-accent transition-colors text-sm"
-                  >
+                  <Link to={item.href} className="text-sm text-primary-foreground/70 transition-colors hover:text-accent">
                     {item.name}
                   </Link>
                 </li>
@@ -82,16 +56,12 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company Column */}
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">Компания</h3>
+            <h3 className="mb-4 font-display text-lg">Компания</h3>
             <ul className="space-y-3">
               {navigation.компания.map((item) => (
                 <li key={item.name}>
-                  <Link 
-                    to={item.href} 
-                    className="text-primary-foreground/70 hover:text-accent transition-colors text-sm"
-                  >
+                  <Link to={item.href} className="text-sm text-primary-foreground/70 transition-colors hover:text-accent">
                     {item.name}
                   </Link>
                 </li>
@@ -99,66 +69,49 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact Column */}
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">Контакти</h3>
-            <ul className="space-y-4">
+            <h3 className="mb-4 font-display text-lg">Контакти</h3>
+            <ul className="space-y-4 text-sm">
               <li>
-                <a 
-                  href="tel:+359888123456" 
-                  className="flex items-start gap-3 text-primary-foreground/70 hover:text-accent transition-colors"
-                >
-                  <Phone className="w-5 h-5 mt-0.5 text-primary" />
-                  <div>
-                    <div className="text-primary-foreground font-semibold">0888 123 456</div>
-                    <div className="text-sm">Пон - Пет: 9:00 - 18:00</div>
-                  </div>
+                <a href={siteConfig.phoneHref} className="inline-flex items-start gap-3 text-primary-foreground/80 hover:text-accent">
+                  <Phone className="mt-0.5 h-5 w-5 text-primary" />
+                  <span>
+                    <span className="block text-base font-bold text-primary-foreground">{siteConfig.phoneDisplay}</span>
+                    {siteConfig.workingHours}
+                  </span>
                 </a>
               </li>
-              <li>
-                <a 
-                  href="mailto:info@nrgsolution.bg" 
-                  className="flex items-center gap-3 text-primary-foreground/70 hover:text-accent transition-colors text-sm"
-                >
-                  <Mail className="w-5 h-5 text-primary" />
-                  info@nrgsolution.bg
-                </a>
+              <li className="inline-flex items-center gap-3 text-primary-foreground/80">
+                <Mail className="h-5 w-5 text-primary" />
+                {siteConfig.email}
               </li>
-              <li className="flex items-start gap-3 text-primary-foreground/70 text-sm">
-                <MapPin className="w-5 h-5 mt-0.5 text-primary" />
-                <span>Стара Загора, ул. Ген. Столетов 199</span>
+              <li className="inline-flex items-start gap-3 text-primary-foreground/80">
+                <MapPin className="mt-0.5 h-5 w-5 text-primary" />
+                {siteConfig.address}
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Brands */}
-        <div className="mt-12 pt-8 border-t border-primary-foreground/10">
-          <p className="text-sm text-primary-foreground/50 mb-4 text-center">Работим с утвърдени марки:</p>
-          <div className="flex flex-wrap justify-center gap-4 lg:gap-8">
-            {brands.map((brand) => (
-              <span key={brand} className="text-sm font-medium text-primary-foreground/70">
-                {brand}
-              </span>
-            ))}
+        <div className="mt-12 border-t border-primary-foreground/10 pt-8">
+          <p className="mb-4 text-center text-sm text-primary-foreground/60">Работим с</p>
+          <div className="marquee-wrap overflow-hidden rounded-xl border border-primary-foreground/10 py-4">
+            <div className="marquee-track gap-10 px-4">
+              {[...brands, ...brands].map((brand, idx) => (
+                <span key={`${brand}-${idx}`} className="inline-flex items-center gap-2 rounded-lg bg-primary-foreground/5 px-4 py-2 text-sm font-semibold text-primary-foreground/80">
+                  <Sparkles className="h-3.5 w-3.5 text-accent" />
+                  {brand}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-primary-foreground/10">
-        <div className="container-section py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-primary-foreground/50">
-            © {new Date().getFullYear()} NRGsolution. Всички права запазени.
-          </p>
-          <div className="flex gap-6 text-sm text-primary-foreground/50">
-            <Link to="/политика-за-поверителност" className="hover:text-primary-foreground transition-colors">
-              Политика за поверителност
-            </Link>
-            <Link to="/условия-за-ползване" className="hover:text-primary-foreground transition-colors">
-              Условия за ползване
-            </Link>
-          </div>
+        <div className="container-section flex flex-col gap-3 py-5 text-xs text-primary-foreground/50 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} NRGsolution. Всички права запазени.</p>
+          <p>Политика за поверителност и условия: ще бъдат добавени при финално юридическо одобрение.</p>
         </div>
       </div>
     </footer>

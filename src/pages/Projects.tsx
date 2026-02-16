@@ -3,8 +3,10 @@ import { Layout } from '@/components/layout/Layout';
 import { Link } from 'react-router-dom';
 import { Phone, MapPin, Zap, Filter, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { projects, siteConfig } from '@/content/site-content';
+import { siteConfig } from '@/content/site-content';
+import { useProjects } from '@/hooks/useProjects';
 
 type ProjectFilter = 'all' | 'home' | 'business';
 
@@ -14,15 +16,22 @@ const typeFilters: { value: ProjectFilter; label: string }[] = [
   { value: 'business', label: 'Бизнес' },
 ];
 
-function ProjectCard({ project }: { project: (typeof projects)[number] }) {
+function ProjectCard({ project }: { project: any }) {
+  // Use a placeholder gradient if no image is available
+  const hasImage = 'image' in project;
+
   return (
     <Link to={`/проекти/${project.slug}`} className="group overflow-hidden rounded-2xl border border-border/80 bg-white shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-card">
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img
-          src={project.image}
-          alt={`${project.title} - ${project.city}`}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
+        {hasImage ? (
+          <img
+            src={project.image}
+            alt={`${project.title} - ${project.city}`}
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
 
         <div className="absolute inset-x-0 bottom-0 p-4">
@@ -57,13 +66,21 @@ const Projects = () => {
   const [typeFilter, setTypeFilter] = useState<ProjectFilter>('all');
   const [cityFilter, setCityFilter] = useState<string>('all');
 
-  const cityOptions = useMemo(() => ['all', ...Array.from(new Set(projects.map((p) => p.city)))], []);
+  const { data: projects, isLoading } = useProjects();
 
-  const filteredProjects = projects.filter((project) => {
-    const typeMatch = typeFilter === 'all' || project.type === typeFilter;
-    const cityMatch = cityFilter === 'all' || project.city === cityFilter;
-    return typeMatch && cityMatch;
-  });
+  const cityOptions = useMemo(() => {
+    if (!projects) return ['all'];
+    return ['all', ...Array.from(new Set(projects.map((p) => p.city)))];
+  }, [projects]);
+
+  const filteredProjects = useMemo(() => {
+    if (!projects) return [];
+    return projects.filter((project) => {
+      const typeMatch = typeFilter === 'all' || project.type === typeFilter;
+      const cityMatch = cityFilter === 'all' || project.city === cityFilter;
+      return typeMatch && cityMatch;
+    });
+  }, [projects, typeFilter, cityFilter]);
 
   return (
     <Layout>
@@ -118,11 +135,25 @@ const Projects = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="overflow-hidden rounded-2xl border border-border/80 bg-white">
+                  <Skeleton className="aspect-[4/3]" />
+                  <div className="p-4 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProjects.map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))}
+            </div>
+          )}
 
           <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
             <h2 className="heading-card text-foreground">Вашият проект може да е следващият</h2>

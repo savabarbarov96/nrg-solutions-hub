@@ -4,7 +4,7 @@ import { ProcessSection } from '@/components/home/ProcessSection';
 import { WhyUsSection } from '@/components/home/WhyUsSection';
 import { ProjectsSection } from '@/components/home/ProjectsSection';
 import { BrandsSection } from '@/components/home/BrandsSection';
-import { PromosSection } from '@/components/home/PromosSection';
+import { CertificatesSection } from '@/components/home/CertificatesSection';
 import { FAQSection } from '@/components/home/FAQSection';
 import { ContactSection } from '@/components/home/ContactSection';
 import { Pricing as PricingSection } from '@/components/ui/single-pricing-card-1';
@@ -17,8 +17,8 @@ const Index = () => {
       <PricingSection />
       <ProcessSection />
       <WhyUsSection />
+      <CertificatesSection />
       <ProjectsSection />
-      <PromosSection />
       <FAQSection />
       <ContactSection />
     </Layout>

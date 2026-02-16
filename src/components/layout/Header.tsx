@@ -1,18 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Phone, Menu, X, Zap, ChevronRight, MapPin } from 'lucide-react';
+import { Phone, Menu, X, ChevronRight, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { siteConfig } from '@/content/site-content';
 
 const navigation = [
   { name: 'Начало', href: '/' },
-  { name: 'Услуги', href: '/услуги' },
-  { name: 'Дом', href: '/фотоволтаици-за-дома' },
-  { name: 'Бизнес', href: '/фотоволтаици-за-бизнес' },
   { name: 'Цени', href: '/цени' },
   { name: 'Проекти', href: '/проекти' },
-  { name: 'Промоции', href: '/промоции' },
-  { name: 'FAQ', href: '/faq' },
   { name: 'Контакти', href: '/контакти' },
 ];
 
@@ -82,24 +77,18 @@ export function Header() {
         )}
         aria-label="Global"
       >
-        <div className="container-section flex h-16 items-center justify-between lg:h-[72px]">
+        <div className="container-section relative flex h-16 items-center justify-between lg:h-[72px]">
           {/* Logo */}
-          <Link to="/" className="group flex items-center gap-3">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-emerald-700 text-white shadow-lg shadow-teal-600/20 transition-transform duration-300 group-hover:scale-105">
-              <Zap className="h-5 w-5" strokeWidth={2.5} />
-            </div>
-            <div>
-              <p className="font-display text-xl font-bold text-gray-900 leading-none tracking-tight">
-                NRG<span className="text-teal-600">solution</span>
-              </p>
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-gray-400">
-                Solar Systems
-              </p>
-            </div>
+          <Link to="/" className="group flex items-center">
+            <img
+              src="/logo.png"
+              alt="NrgSolution"
+              className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02] lg:h-11"
+            />
           </Link>
 
           {/* Desktop navigation */}
-          <div className="hidden lg:flex lg:items-center lg:gap-0.5">
+          <div className="hidden lg:absolute lg:left-1/2 lg:flex lg:-translate-x-1/2 lg:items-center lg:gap-0.5">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
               return (

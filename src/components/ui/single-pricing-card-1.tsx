@@ -5,11 +5,17 @@ import { PlusIcon, ShieldCheckIcon, Phone, ClipboardList, Calculator, Sparkles, 
 import { motion } from 'framer-motion';
 import { Badge } from './badge';
 import { Button } from './button';
+import { Skeleton } from './skeleton';
 import { cn } from '@/lib/utils';
 import { BorderTrail } from './border-trail';
 import { siteConfig } from '@/content/site-content';
+import { usePricingPackages } from '@/hooks/usePricing';
 
 export function Pricing() {
+  const { data: packages, isLoading } = usePricingPackages();
+
+  // Get packages in order: 8kw, 12kw, 15kw
+  const sortedPackages = packages?.sort((a, b) => a.price_eur - b.price_eur) || [];
   return (
     <section className="relative overflow-hidden py-20 sm:py-24">
       <div
@@ -56,19 +62,41 @@ export function Pricing() {
             <PlusIcon className="absolute -bottom-2.5 -left-2.5 size-5 text-primary/70" />
             <PlusIcon className="absolute -right-2.5 -bottom-2.5 size-5 text-primary/70" />
 
-            <div className="grid gap-5 lg:grid-cols-3">
+            {isLoading ? (
+              <div className="grid gap-5 lg:grid-cols-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex h-full min-h-[460px] w-full flex-col rounded-xl border border-border/80 bg-white px-5 pt-6 pb-5">
+                    <Skeleton className="h-6 w-32 mb-2" />
+                    <Skeleton className="h-10 w-40 mb-2" />
+                    <Skeleton className="h-20 w-full mb-4" />
+                    <Skeleton className="h-16 w-full mb-4" />
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-full" />
+                    </div>
+                    <Skeleton className="h-10 w-full mt-4" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid gap-5 lg:grid-cols-3">
               <article className="flex h-full min-h-[460px] w-full flex-col rounded-xl border border-border/80 bg-white px-5 pt-6 pb-5">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="leading-none font-semibold text-foreground">Старт - 8 kW</h3>
+                    <h3 className="leading-none font-semibold text-foreground">{sortedPackages[0]?.name} - {sortedPackages[0]?.power}</h3>
                     <Badge variant="secondary">Дом</Badge>
                   </div>
+                  <div className="mt-3 mb-1">
+                    <div className="text-3xl font-bold text-foreground">От {sortedPackages[0]?.price_eur.toLocaleString('bg-BG')}€</div>
+                    <p className="text-xs text-muted-foreground mt-0.5">Базова цена с ДДС</p>
+                  </div>
                   <p className="text-muted-foreground text-sm">
-                    Оптимален за семейства с умерена консумация, които търсят бърз старт с реално намаляване на сметките.
+                    {sortedPackages[0]?.description}
                   </p>
                 </div>
                 <div className="mt-4 rounded-lg border border-border/70 bg-muted/30 p-3 text-xs text-muted-foreground">
-                  Подходящ за 2-3 души домакинство, дневно потребление и базово батерийно съхранение.
+                  {sortedPackages[0]?.ideal_for}
                 </div>
                 <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2"><Home className="mt-0.5 h-4 w-4 text-primary" />Хибриден инвертор, панели, батерия</li>
@@ -93,18 +121,24 @@ export function Pricing() {
                 />
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="leading-none font-semibold text-foreground">Оптимум - 12 kW</h3>
-                    <Badge>
-                      <Sparkles className="mr-1 h-3 w-3" />
-                      Най-търсен
-                    </Badge>
+                    <h3 className="leading-none font-semibold text-foreground">{sortedPackages[1]?.name} - {sortedPackages[1]?.power}</h3>
+                    {sortedPackages[1]?.popular && (
+                      <Badge>
+                        <Sparkles className="mr-1 h-3 w-3" />
+                        Най-търсен
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="mt-3 mb-1">
+                    <div className="text-3xl font-bold text-foreground">От {sortedPackages[1]?.price_eur.toLocaleString('bg-BG')}€</div>
+                    <p className="text-xs text-muted-foreground mt-0.5">Базова цена с ДДС</p>
                   </div>
                   <p className="text-muted-foreground text-sm">
-                    Балансирана конфигурация за по-големи къщи и малки бизнес обекти с по-висок профил на консумация.
+                    {sortedPackages[1]?.description}
                   </p>
                 </div>
                 <div className="mt-4 rounded-lg border border-primary/25 bg-white/75 p-3 text-xs text-muted-foreground">
-                  По-добър резерв за вечерни товари, климатизация и бъдещо надграждане с допълнителна батерия.
+                  {sortedPackages[1]?.ideal_for}
                 </div>
                 <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2"><Building2 className="mt-0.5 h-4 w-4 text-primary" />Хибриден инвертор, панели, батерия</li>
@@ -122,15 +156,19 @@ export function Pricing() {
               <article className="flex h-full min-h-[460px] w-full flex-col rounded-xl border border-border/80 bg-white px-5 pt-6 pb-5">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="leading-none font-semibold text-foreground">Макс - 15 kW</h3>
+                    <h3 className="leading-none font-semibold text-foreground">{sortedPackages[2]?.name} - {sortedPackages[2]?.power}</h3>
                     <Badge variant="secondary">Бизнес + Голям дом</Badge>
                   </div>
+                  <div className="mt-3 mb-1">
+                    <div className="text-3xl font-bold text-foreground">От {sortedPackages[2]?.price_eur.toLocaleString('bg-BG')}€</div>
+                    <p className="text-xs text-muted-foreground mt-0.5">Базова цена с ДДС</p>
+                  </div>
                   <p className="text-sm text-muted-foreground">
-                    Високопроизводително решение за обекти с пикови товари, EV зарядни или по-интензивна дневна работа.
+                    {sortedPackages[2]?.description}
                   </p>
                 </div>
                 <div className="mt-4 rounded-lg border border-border/70 bg-muted/30 p-3 text-xs text-muted-foreground">
-                  Проектиран за устойчивост при натоварване и по-добра предвидимост на разходите в дългосрочен план.
+                  {sortedPackages[2]?.ideal_for}
                 </div>
                 <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2"><ShieldCheckIcon className="mt-0.5 h-4 w-4 text-primary" />Хибриден инвертор, панели, батерия</li>
@@ -145,11 +183,12 @@ export function Pricing() {
                 </Button>
               </article>
             </div>
+            )}
           </div>
 
           <div className="text-muted-foreground flex items-center justify-center gap-2 text-center text-sm">
             <ShieldCheckIcon className="size-4 text-primary" />
-            <span>Цената се формира от мощност, компоненти и монтажна сложност. Без скрити такси.</span>
+            <span>Посочените цени са базови за всяка мощност. Финалната оферта се определя след оглед. Без скрити такси.</span>
           </div>
 
           <div className="mx-auto max-w-3xl rounded-xl border border-border/80 bg-white p-4 md:p-5">

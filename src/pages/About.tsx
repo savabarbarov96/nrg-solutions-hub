@@ -2,6 +2,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Phone, Users, MapPin, ShieldCheck, BadgeCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandsSection } from '@/components/home/BrandsSection';
+import { CertificatesSection } from '@/components/home/CertificatesSection';
 import { TimelineDemo } from '@/components/home/timeline-demo';
 import { siteConfig } from '@/content/site-content';
 
@@ -66,6 +67,8 @@ const About = () => {
           })}
         </div>
       </section>
+
+      <CertificatesSection />
 
       <section className="section-padding bg-muted/30">
         <div className="container-section">

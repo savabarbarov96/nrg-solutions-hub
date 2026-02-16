@@ -1,19 +1,26 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, MapPin, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { projects } from '@/content/site-content';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useProjects } from '@/hooks/useProjects';
 
-function ProjectCard({ project }: { project: (typeof projects)[number] }) {
+function ProjectCard({ project }: { project: any }) {
+  const hasImage = 'image' in project;
+
   return (
     <Link
       to={`/проекти/${project.slug}`}
       className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border/70"
     >
-      <img
-        src={project.image}
-        alt={`${project.title} ${project.power} в ${project.city}`}
-        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-      />
+      {hasImage ? (
+        <img
+          src={project.image}
+          alt={`${project.title} ${project.power} в ${project.city}`}
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+      ) : (
+        <div className="h-full w-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5" />
+      )}
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/15 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 p-4">
         <div className="mb-2 flex items-center gap-2 text-xs">
@@ -36,7 +43,8 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
 }
 
 export function ProjectsSection() {
-  const featured = projects.slice(0, 6);
+  const { data: projects, isLoading } = useProjects();
+  const featured = projects?.slice(0, 6) || [];
 
   return (
     <section className="section-padding bg-background">
@@ -54,11 +62,19 @@ export function ProjectsSection() {
           </Button>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="aspect-[4/3] rounded-2xl" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

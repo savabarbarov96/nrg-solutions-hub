@@ -73,7 +73,7 @@ export function ContactSection() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Телефон *</Label>
-                    <Input id="phone" type="tel" placeholder="0888 123 456" required />
+                    <Input id="phone" type="tel" placeholder="089 435 4538" required />
                   </div>
                 </div>
 

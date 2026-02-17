@@ -73,12 +73,12 @@ export function Header() {
         className={cn(
           'transition-all duration-300',
           scrolled
-            ? 'bg-white/90 backdrop-blur-2xl shadow-[0_1px_3px_0_rgb(0_0_0/.06),0_4px_24px_-4px_rgb(0_0_0/.08)] border-b border-black/[0.04]'
-            : 'bg-white/70 backdrop-blur-xl border-b border-black/[0.06]'
+            ? 'bg-white/50 backdrop-blur-2xl shadow-[0_1px_3px_0_rgb(0_0_0/.06),0_4px_24px_-4px_rgb(0_0_0/.08)] border-b border-black/[0.04]'
+            : 'bg-white/20 backdrop-blur-md border-b border-white/10'
         )}
         aria-label="Global"
       >
-        <div className="container-section relative flex h-28 items-center justify-between lg:h-[116px]">
+        <div className="container-section relative flex h-16 items-center justify-between lg:h-[72px]">
           {/* Logo */}
           <Link to="/" className="group flex items-center">
             <motion.div
@@ -172,7 +172,7 @@ export function Header() {
             mobileMenuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
           )}
         >
-          <div className="border-t border-gray-100 bg-white px-4 pb-6 pt-3">
+          <div className="border-t border-gray-100 bg-white px-4 pb-6 pt-3 shadow-xl">
             <div className="space-y-0.5">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;

@@ -78,7 +78,7 @@ export function Header() {
         )}
         aria-label="Global"
       >
-        <div className="container-section relative flex h-20 items-center justify-between lg:h-[88px]">
+        <div className="container-section relative flex h-24 items-center justify-between lg:h-[100px]">
           {/* Logo */}
           <Link to="/" className="group flex items-center">
             <motion.div
@@ -99,7 +99,8 @@ export function Header() {
                 alt="NrgSolution"
                 animate={{ scale: [1, 1.04, 1] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative h-20 w-auto object-contain drop-shadow-lg lg:h-24"
+                className="relative h-24 w-auto object-contain drop-shadow-lg lg:h-28"
+                style={{ maxWidth: '280px' }}
               />
             </motion.div>
           </Link>

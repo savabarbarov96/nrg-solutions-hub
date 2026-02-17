@@ -78,26 +78,28 @@ export function Header() {
         )}
         aria-label="Global"
       >
-        <div className="container-section relative flex h-16 items-center justify-between lg:h-[72px]">
+        <div className="container-section relative flex h-20 items-center justify-between lg:h-[88px]">
           {/* Logo */}
           <Link to="/" className="group flex items-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
-              whileHover={{ scale: 1.06 }}
+              whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.97 }}
               className="relative"
             >
               <motion.div
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute inset-0 rounded-xl bg-teal-400/20 blur-xl"
+                animate={{ opacity: [0.4, 0.9, 0.4], scale: [1, 1.15, 1] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute inset-0 rounded-2xl bg-teal-400/30 blur-2xl"
               />
-              <img
+              <motion.img
                 src="/logo-transparent.png"
                 alt="NrgSolution"
-                className="relative h-14 w-auto object-contain drop-shadow-md lg:h-16"
+                animate={{ scale: [1, 1.04, 1] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative h-20 w-auto object-contain drop-shadow-lg lg:h-24"
               />
             </motion.div>
           </Link>

@@ -78,19 +78,19 @@ export function Header() {
         )}
         aria-label="Global"
       >
-        <div className="container-section relative flex h-24 items-center justify-between lg:h-[100px]">
+        <div className="container-section relative flex h-28 items-center justify-between lg:h-[116px]">
           {/* Logo */}
           <Link to="/" className="group flex items-center">
             <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              whileHover={{ scale: 1.08 }}
+              initial={{ opacity: 0, x: -80 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.97 }}
               className="relative"
             >
               <motion.div
-                animate={{ opacity: [0.4, 0.9, 0.4], scale: [1, 1.15, 1] }}
+                animate={{ opacity: [0.4, 0.9, 0.4], scale: [1, 1.2, 1] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute inset-0 rounded-2xl bg-teal-400/30 blur-2xl"
               />
@@ -99,8 +99,8 @@ export function Header() {
                 alt="NrgSolution"
                 animate={{ scale: [1, 1.04, 1] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative h-24 w-auto object-contain drop-shadow-lg lg:h-28"
-                style={{ maxWidth: '280px' }}
+                className="relative h-32 w-auto object-contain drop-shadow-lg lg:h-36"
+                style={{ maxWidth: '360px' }}
               />
             </motion.div>
           </Link>

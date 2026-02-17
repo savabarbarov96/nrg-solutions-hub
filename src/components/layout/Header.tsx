@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Phone, Menu, X, ChevronRight, MapPin } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { siteConfig } from '@/content/site-content';
 
@@ -80,11 +81,25 @@ export function Header() {
         <div className="container-section relative flex h-16 items-center justify-between lg:h-[72px]">
           {/* Logo */}
           <Link to="/" className="group flex items-center">
-            <img
-              src="/logo.png"
-              alt="NrgSolution"
-              className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02] lg:h-11"
-            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.97 }}
+              className="relative"
+            >
+              <motion.div
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute inset-0 rounded-xl bg-teal-400/20 blur-xl"
+              />
+              <img
+                src="/logo-transparent.png"
+                alt="NrgSolution"
+                className="relative h-14 w-auto object-contain drop-shadow-md lg:h-16"
+              />
+            </motion.div>
           </Link>
 
           {/* Desktop navigation */}

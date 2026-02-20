@@ -6,6 +6,7 @@
 DROP TABLE IF EXISTS project_images CASCADE;
 DROP TABLE IF EXISTS projects CASCADE;
 DROP TABLE IF EXISTS pricing_packages CASCADE;
+DROP TABLE IF EXISTS pricing_offer_cards CASCADE;
 
 -- =====================================================
 -- Table: projects
@@ -59,11 +60,43 @@ CREATE TABLE pricing_packages (
 );
 
 -- =====================================================
+-- Table: pricing_offer_cards
+-- =====================================================
+CREATE TABLE pricing_offer_cards (
+  id TEXT PRIMARY KEY CHECK (id IN ('offer-8kw', 'offer-12kw', 'offer-15kw')),
+  display_order INTEGER NOT NULL DEFAULT 0,
+  price_text TEXT NOT NULL,
+  hero_image TEXT NOT NULL,
+  short_title TEXT NOT NULL,
+  includes_text TEXT NOT NULL,
+  headline_lines JSONB NOT NULL DEFAULT '[]'::jsonb,
+  inverter_name TEXT NOT NULL,
+  inverter_model TEXT NOT NULL,
+  inverter_power_label TEXT NOT NULL,
+  inverter_image TEXT NOT NULL,
+  battery_name TEXT NOT NULL,
+  battery_model TEXT NOT NULL,
+  battery_energy_label TEXT NOT NULL,
+  battery_image TEXT NOT NULL,
+  panels_name TEXT NOT NULL,
+  panels_model TEXT NOT NULL,
+  panels_count INTEGER NOT NULL,
+  panels_image TEXT NOT NULL,
+  cta_text TEXT NOT NULL DEFAULT 'Обади се',
+  cta_href TEXT NOT NULL DEFAULT 'tel:+3590894354538',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_pricing_offer_cards_display_order ON pricing_offer_cards(display_order);
+
+-- =====================================================
 -- Enable Row Level Security (RLS)
 -- =====================================================
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE project_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pricing_packages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pricing_offer_cards ENABLE ROW LEVEL SECURITY;
 
 -- =====================================================
 -- RLS Policies - Public Access (for anon + authenticated)
@@ -137,10 +170,33 @@ CREATE POLICY "Allow public delete on pricing_packages"
   TO public
   USING (true);
 
+-- Pricing offer cards policies
+CREATE POLICY "Allow public read access on pricing_offer_cards"
+  ON pricing_offer_cards FOR SELECT
+  TO public
+  USING (true);
+
+CREATE POLICY "Allow public insert on pricing_offer_cards"
+  ON pricing_offer_cards FOR INSERT
+  TO public
+  WITH CHECK (true);
+
+CREATE POLICY "Allow public update on pricing_offer_cards"
+  ON pricing_offer_cards FOR UPDATE
+  TO public
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY "Allow public delete on pricing_offer_cards"
+  ON pricing_offer_cards FOR DELETE
+  TO public
+  USING (true);
+
 -- Table and sequence grants for Supabase API roles
 GRANT SELECT, INSERT, UPDATE, DELETE ON projects TO anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON project_images TO anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON pricing_packages TO anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON pricing_offer_cards TO anon, authenticated;
 GRANT USAGE, SELECT ON SEQUENCE projects_id_seq TO anon, authenticated;
 GRANT USAGE, SELECT ON SEQUENCE project_images_id_seq TO anon, authenticated;
 
@@ -253,6 +309,102 @@ INSERT INTO pricing_packages (id, name, power, price_eur, description, ideal_for
   'Големи къщи, предприятия и обекти с пиково натоварване',
   false,
   '["Хибриден инвертор", "Соларни панели", "Батерия", "DC/AC кабели", "AC защити", "Алуминиева конструкция, профили, клеми и държачи", "Пуск и демонстрация в Solis"]'::jsonb
+);
+
+-- =====================================================
+-- Seed Data: Additional Pricing Offer Cards
+-- =====================================================
+INSERT INTO pricing_offer_cards (
+  id,
+  display_order,
+  price_text,
+  hero_image,
+  short_title,
+  includes_text,
+  headline_lines,
+  inverter_name,
+  inverter_model,
+  inverter_power_label,
+  inverter_image,
+  battery_name,
+  battery_model,
+  battery_energy_label,
+  battery_image,
+  panels_name,
+  panels_model,
+  panels_count,
+  panels_image,
+  cta_text,
+  cta_href
+) VALUES
+(
+  'offer-8kw',
+  1,
+  '6650€ с ДДС',
+  '/assets/offers/hero-1.webp',
+  'ФЕЦ + Батерия 8 kW',
+  'Конструкция и кабели',
+  '["ТРИФАЗНА ХИБРИДНА", "СИСТЕМА ~8.1kWp", "БАТЕРИЯ 10.24kWh", "С ВКЛЮЧЕН МОНТАЖ"]'::jsonb,
+  'Solis',
+  'S6-EH3P8K02-NV-YD-L',
+  '8 kW',
+  '/assets/products/inverters/Изображение-от-WhatsApp-на-2025-03-21-в-17.04.50_f9ec5397.jpg',
+  'Dyness',
+  'LV Powerbox G2 10.24kWh 51.2V/200Ah Heating',
+  '10.24 kWh',
+  '/assets/products/batteries/8230-01-0050_1.jpg',
+  'JA Solar',
+  '540W',
+  15,
+  '/assets/products/panels/ja-solar-540w.png',
+  'Обади се',
+  'tel:+3590894354538'
+),
+(
+  'offer-12kw',
+  2,
+  '7750€ с ДДС',
+  '/assets/offers/hero-2.webp',
+  'ФЕЦ + Батерия 12 kW (Deye)',
+  'Конструкция и кабели',
+  '["ТРИФАЗНА ХИБРИДНА", "СИСТЕМА ~12.4kWp", "БАТЕРИЯ 13.44kWh", "С ВКЛЮЧЕН МОНТАЖ"]'::jsonb,
+  'Deye',
+  'SUN-12K-SG05 LP3-EU-SM2',
+  '12 kW',
+  '/assets/products/inverters/15kwSolisINverter.png',
+  'Ritar',
+  'BAT-15KWH-48V 13.44kWh',
+  '13.44 kWh',
+  '/assets/products/batteries/8230-01-0050_1.jpg',
+  'JA Solar',
+  '540W',
+  23,
+  '/assets/products/panels/ja-solar-540w.png',
+  'Обади се',
+  'tel:+3590894354538'
+),
+(
+  'offer-15kw',
+  3,
+  '8700€ с ДДС',
+  '/assets/offers/hero-3.webp',
+  'ФЕЦ + Батерия 12 kW (Solis)',
+  'Конструкция и кабели',
+  '["ТРИФАЗНА ХИБРИДНА", "СИСТЕМА ~12.4kWp", "БАТЕРИЯ 14.33kWh", "С ВКЛЮЧЕН МОНТАЖ"]'::jsonb,
+  'Solis',
+  'S6-EH3P12K02-NV-YD-L',
+  '12 kW',
+  '/assets/products/inverters/12kwSolisInverter.png',
+  'Dyness',
+  'LV PowerBrick 14.33kWh 51.2V/280Ah Heating',
+  '14.33 kWh',
+  '/assets/products/batteries/dyness-power-brick 14KW.jpg',
+  'JA Solar',
+  '540W',
+  23,
+  '/assets/products/panels/ja-solar-540w.png',
+  'Обади се',
+  'tel:+3590894354538'
 );
 
 -- =====================================================

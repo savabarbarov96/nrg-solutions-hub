@@ -6,13 +6,33 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { siteConfig } from '@/content/site-content';
+import { submitContactForm } from '@/services/api';
+import { toast } from 'sonner';
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    setIsSubmitting(true);
+    try {
+      await submitContactForm({
+        name: formData.get('name') as string,
+        phone: formData.get('phone') as string,
+        city: formData.get('city') as string,
+        type: formData.get('object-type') as string,
+        message: (formData.get('message') as string) || undefined,
+      });
+      setSubmitted(true);
+    } catch {
+      toast.error('Грешка при изпращане. Моля, опитайте отново.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -69,22 +89,22 @@ export function ContactSection() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="name">Име *</Label>
-                    <Input id="name" placeholder="Вашето име" required />
+                    <Input id="name" name="name" placeholder="Вашето име" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Телефон *</Label>
-                    <Input id="phone" type="tel" placeholder="089 435 4538" required />
+                    <Input id="phone" name="phone" type="tel" placeholder="089 435 4538" required />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="city">Град / населено място *</Label>
-                  <Input id="city" placeholder="Къде е обектът?" required />
+                  <Input id="city" name="city" placeholder="Къде е обектът?" required />
                 </div>
 
                 <div className="space-y-3">
                   <Label>Тип обект</Label>
-                  <RadioGroup defaultValue="home" className="flex gap-5">
+                  <RadioGroup defaultValue="home" name="object-type" className="flex gap-5">
                     <div className="flex items-center gap-2">
                       <RadioGroupItem value="home" id="home" />
                       <Label htmlFor="home" className="font-normal cursor-pointer">Къща</Label>
@@ -98,12 +118,12 @@ export function ContactSection() {
 
                 <div className="space-y-2">
                   <Label htmlFor="message">Съобщение</Label>
-                  <Textarea id="message" rows={3} placeholder="Кратко описание на нуждите ви" />
+                  <Textarea id="message" name="message" rows={3} placeholder="Кратко описание на нуждите ви" />
                 </div>
 
-                <Button variant="accent" size="lg" className="w-full gap-2">
+                <Button variant="accent" size="lg" className="w-full gap-2" disabled={isSubmitting}>
                   <Send className="h-4 w-4" />
-                  Изпрати запитване
+                  {isSubmitting ? 'Изпращане...' : 'Изпрати запитване'}
                 </Button>
               </form>
             )}

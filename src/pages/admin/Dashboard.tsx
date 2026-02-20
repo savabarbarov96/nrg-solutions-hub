@@ -111,7 +111,7 @@ export default function Dashboard() {
             ) : recentProjects.length > 0 ? (
               <div className="space-y-4">
                 {recentProjects.map((project) => (
-                  <div key={project.id} className="flex items-center justify-between">
+                  <div key={project.slug} className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{project.title}</p>
                       <p className="text-sm text-muted-foreground">

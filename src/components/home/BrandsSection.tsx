@@ -1,4 +1,35 @@
+import { useState } from 'react';
 import { brands } from '@/content/site-content';
+
+function BrandCard({ brand, variant }: { brand: typeof brands[number]; variant: 'teal' | 'amber' }) {
+  const [imgError, setImgError] = useState(false);
+
+  const borderHover = variant === 'teal'
+    ? 'hover:border-teal-200 hover:shadow-[0_4px_20px_-4px_rgb(0_128_128/.12)]'
+    : 'hover:border-amber-200 hover:shadow-[0_4px_20px_-4px_rgb(180_140_20/.12)]';
+
+  return (
+    <div
+      className={`group flex items-center justify-center rounded-2xl border border-gray-200/80 bg-white px-5 py-3 shadow-[0_1px_3px_rgb(0_0_0/.04)] transition-all duration-300 ${borderHover}`}
+    >
+      <div className="flex h-[48px] w-[140px] items-center justify-center">
+        {imgError ? (
+          <span className="font-display text-lg font-bold tracking-tight text-gray-800 whitespace-nowrap">
+            {brand.name}
+          </span>
+        ) : (
+          <img
+            src={brand.logo}
+            alt={brand.name}
+            loading="eager"
+            className="max-h-[48px] max-w-[140px] w-auto h-auto object-contain grayscale opacity-70 transition-all duration-300 group-hover:grayscale-0 group-hover:opacity-100"
+            onError={() => setImgError(true)}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function BrandsSection() {
   const row = [...brands, ...brands, ...brands, ...brands];
@@ -31,23 +62,7 @@ export function BrandsSection() {
           <div className="overflow-hidden py-3">
             <div className="flex w-max animate-[marquee_30s_linear_infinite] items-center gap-8 sm:gap-12">
               {row.map((brand, index) => (
-                <div
-                  key={`a-${index}`}
-                  className="group flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-white px-6 py-4 shadow-[0_1px_3px_rgb(0_0_0/.04)] transition-all duration-300 hover:border-teal-200 hover:shadow-[0_4px_20px_-4px_rgb(0_128_128/.12)]"
-                >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-50 to-emerald-50 transition-colors group-hover:from-teal-100 group-hover:to-emerald-100">
-                    <svg className="h-4.5 w-4.5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="4" />
-                      <path d="M12 2v2" /><path d="M12 20v2" />
-                      <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
-                      <path d="M2 12h2" /><path d="M20 12h2" />
-                      <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
-                    </svg>
-                  </div>
-                  <span className="font-display text-lg font-bold tracking-tight text-gray-800 whitespace-nowrap sm:text-xl">
-                    {brand}
-                  </span>
-                </div>
+                <BrandCard key={`a-${index}`} brand={brand} variant="teal" />
               ))}
             </div>
           </div>
@@ -61,19 +76,7 @@ export function BrandsSection() {
           <div className="overflow-hidden py-3">
             <div className="flex w-max animate-[marquee-reverse_34s_linear_infinite] items-center gap-8 sm:gap-12">
               {[...row].reverse().map((brand, index) => (
-                <div
-                  key={`b-${index}`}
-                  className="group flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-white px-6 py-4 shadow-[0_1px_3px_rgb(0_0_0/.04)] transition-all duration-300 hover:border-amber-200 hover:shadow-[0_4px_20px_-4px_rgb(180_140_20/.12)]"
-                >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-50 to-yellow-50 transition-colors group-hover:from-amber-100 group-hover:to-yellow-100">
-                    <svg className="h-4.5 w-4.5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
-                    </svg>
-                  </div>
-                  <span className="font-display text-lg font-bold tracking-tight text-gray-800 whitespace-nowrap sm:text-xl">
-                    {brand}
-                  </span>
-                </div>
+                <BrandCard key={`b-${index}`} brand={brand} variant="amber" />
               ))}
             </div>
           </div>

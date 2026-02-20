@@ -8,6 +8,10 @@ import type {
   ProjectImageInsert,
   PricingPackage,
   PricingPackageUpdate,
+  PricingOfferCard,
+  PricingOfferCardId,
+  PricingOfferCardUpdate,
+  QuestionnaireSubmissionInsert,
 } from '@/types/database';
 
 // =====================================================
@@ -26,10 +30,11 @@ export async function getProjects(type?: 'home' | 'business'): Promise<any[]> {
         *,
         project_images (
           image_url,
-          display_order
+          display_order,
+          rotation
         )
       `)
-      .order('created_at', { ascending: false });
+      .order('display_order', { ascending: true });
 
     if (type) {
       query = query.eq('type', type);
@@ -41,25 +46,50 @@ export async function getProjects(type?: 'home' | 'business'): Promise<any[]> {
       throw error;
     }
 
-    // Transform data to include first image as 'image' property for compatibility
-    const projects = (data || []).map((project: any) => {
+    // Transform DB rows: extract first image + rotation
+    const dbProjects = (data || []).map((project: any) => {
       const images = project.project_images || [];
       const firstImage = images.sort((a: any, b: any) => a.display_order - b.display_order)[0];
 
       return {
         ...project,
         image: firstImage?.image_url || null,
-        project_images: undefined, // Remove the nested array from the response
+        image_rotation: firstImage?.rotation || 0,
+        project_images: undefined,
       };
     });
 
-    // Hardcoded portfolio is source of truth for known slugs.
-    // Keep DB-only projects as extras (e.g. newly created from admin).
-    const dbOnlyProjects = projects.filter(
-      (dbProject) => !staticFiltered.some((staticProject) => staticProject.slug === dbProject.slug)
-    );
+    // Build a map of DB projects by slug for quick lookup
+    const dbBySlug = new Map<string, any>();
+    for (const dbProject of dbProjects) {
+      dbBySlug.set(dbProject.slug, dbProject);
+    }
 
-    return [...staticFiltered, ...dbOnlyProjects];
+    // Merge: for each static project, use DB display_order if a DB row exists
+    const merged: any[] = staticFiltered.map((staticProject) => {
+      const dbRow = dbBySlug.get(staticProject.slug);
+      if (dbRow) {
+        return {
+          ...staticProject,
+          display_order: dbRow.display_order,
+          image_rotation: dbRow.image_rotation || 0,
+        };
+      }
+      return staticProject;
+    });
+
+    // Add DB-only projects (not in static list)
+    const staticSlugs = new Set(staticFiltered.map((p) => p.slug));
+    for (const dbProject of dbProjects) {
+      if (!staticSlugs.has(dbProject.slug)) {
+        merged.push(dbProject);
+      }
+    }
+
+    // Sort by display_order ascending
+    merged.sort((a, b) => (a.display_order ?? 999) - (b.display_order ?? 999));
+
+    return merged;
   } catch (error) {
     console.warn('Falling back to static projects dataset:', error);
     return staticFiltered;
@@ -78,7 +108,8 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
       *,
       project_images (
         image_url,
-        display_order
+        display_order,
+        rotation
       )
     `)
     .eq('slug', slug)
@@ -94,13 +125,13 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
 
   if (!data) return null;
 
-  // Transform data to include first image as 'image' property for compatibility
   const images = data.project_images || [];
   const firstImage = images.sort((a: any, b: any) => a.display_order - b.display_order)[0];
 
   return {
     ...data,
     image: firstImage?.image_url || null,
+    image_rotation: firstImage?.rotation || 0,
     project_images: undefined,
   };
 }
@@ -114,7 +145,8 @@ export async function getProjectById(id: number): Promise<any | null> {
       *,
       project_images (
         image_url,
-        display_order
+        display_order,
+        rotation
       )
     `)
     .eq('id', id)
@@ -130,13 +162,13 @@ export async function getProjectById(id: number): Promise<any | null> {
 
   if (!data) return staticProject || null;
 
-  // Transform data to include first image as 'image' property for compatibility
   const images = data.project_images || [];
   const firstImage = images.sort((a: any, b: any) => a.display_order - b.display_order)[0];
 
   return {
     ...data,
     image: firstImage?.image_url || null,
+    image_rotation: firstImage?.rotation || 0,
     project_images: undefined,
   };
 }
@@ -242,6 +274,51 @@ export async function deleteProject(id: number): Promise<void> {
 }
 
 // =====================================================
+// Project Ordering API
+// =====================================================
+
+export async function reorderProjects(
+  orderedProjects: { id: number; slug: string; display_order: number }[]
+): Promise<void> {
+  for (const project of orderedProjects) {
+    // Update by slug — avoids id mismatch between static array ids and DB ids.
+    // Returns an array (never 406), empty if no row exists.
+    const { data: updated, error } = await supabase
+      .from('projects')
+      .update({ display_order: project.display_order })
+      .eq('slug', project.slug)
+      .select('id');
+
+    if (error) {
+      console.error('Error reordering project:', project.slug, error);
+      throw new Error(`Failed to reorder project "${project.slug}": ${error.message}`);
+    }
+
+    // No existing DB row for this static project — insert one
+    if (!updated || updated.length === 0) {
+      const staticProject = staticProjects.find((p) => p.slug === project.slug);
+      if (staticProject) {
+        const { error: insertError } = await supabase.from('projects').insert({
+          slug: staticProject.slug,
+          city: staticProject.city,
+          power: staticProject.power,
+          type: staticProject.type,
+          title: staticProject.title,
+          summary: staticProject.summary,
+          completed_scope: staticProject.completed_scope,
+          solis_note: staticProject.solis_note,
+          display_order: project.display_order,
+        });
+
+        if (insertError) {
+          console.error('Error inserting static project for reorder:', staticProject.slug, insertError);
+        }
+      }
+    }
+  }
+}
+
+// =====================================================
 // Project Images API
 // =====================================================
 
@@ -258,6 +335,18 @@ export async function getProjectImages(projectId: number): Promise<ProjectImage[
   }
 
   return data || [];
+}
+
+export async function updateImageRotation(imageId: number, rotation: number): Promise<void> {
+  const { error } = await supabase
+    .from('project_images')
+    .update({ rotation })
+    .eq('id', imageId);
+
+  if (error) {
+    console.error('Error updating image rotation:', error);
+    throw new Error(`Failed to update image rotation: ${error.message}`);
+  }
 }
 
 export async function uploadProjectImage(
@@ -391,4 +480,215 @@ export async function updatePricingPackage(
   }
 
   return data;
+}
+
+// =====================================================
+// Pricing Offer Cards API
+// =====================================================
+
+export async function getPricingOfferCards(): Promise<PricingOfferCard[]> {
+  const { data, error } = await supabase
+    .from('pricing_offer_cards')
+    .select('*')
+    .order('display_order', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching pricing offer cards:', error);
+    throw new Error(`Failed to fetch pricing offer cards: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function updatePricingOfferCard(
+  id: PricingOfferCardId,
+  updates: PricingOfferCardUpdate
+): Promise<PricingOfferCard> {
+  const { data, error } = await supabase
+    .from('pricing_offer_cards')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error updating pricing offer card:', error);
+    throw new Error(`Failed to update pricing offer card: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error('Failed to update pricing offer card: card not found or update not permitted');
+  }
+
+  return data;
+}
+
+export async function uploadPricingOfferCardImage(
+  id: PricingOfferCardId,
+  slot: 'hero' | 'inverter' | 'battery' | 'panels',
+  file: File
+): Promise<string> {
+  const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const fileName = `${slot}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExt}`;
+  const filePath = `offer-cards/${id}/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('project-images')
+    .upload(filePath, file, { upsert: false });
+
+  if (uploadError) {
+    console.error('Error uploading offer card image:', uploadError);
+    throw new Error(`Failed to upload offer card image: ${uploadError.message}`);
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('project-images').getPublicUrl(filePath);
+
+  return publicUrl;
+}
+
+// =====================================================
+// Questionnaire API
+// =====================================================
+
+export async function submitQuestionnaire(
+  submission: QuestionnaireSubmissionInsert
+): Promise<void> {
+  // 1. Save to database
+  const { error } = await supabase
+    .from('questionnaire_submissions')
+    .insert(submission);
+
+  if (error) {
+    console.error('Error saving questionnaire submission:', error);
+    throw new Error(`Failed to save questionnaire: ${error.message}`);
+  }
+
+  // 2. Send email via Supabase Edge Function → Resend (non-blocking)
+  try {
+    const fields = [
+      { label: 'Име', value: submission.name },
+      { label: 'Имейл', value: submission.email },
+      { label: 'Телефон', value: submission.phone },
+      { label: 'Вид мрежа', value: submission.grid_type },
+      { label: 'Цел', value: submission.purpose },
+      { label: 'Мощност', value: submission.power_needed },
+      { label: 'Вид система', value: submission.system_type },
+      { label: 'Вид монтаж', value: submission.mounting_type },
+      { label: 'Етап строителство', value: submission.construction_stage },
+      { label: 'Вид имот', value: submission.property_type },
+      { label: 'Локация', value: submission.location },
+    ];
+
+    const filledFields = fields
+      .filter((f) => f.value)
+      .map((f) => `<tr><td style="padding:6px 12px;font-weight:600;color:#374151">${f.label}</td><td style="padding:6px 12px;color:#6b7280">${f.value}</td></tr>`)
+      .join('');
+
+    const html = `
+      <div style="font-family:sans-serif;max-width:600px">
+        <h2 style="color:#0d9488">Ново запитване от сайта</h2>
+        <table style="border-collapse:collapse;width:100%">
+          ${filledFields}
+        </table>
+        <p style="margin-top:20px;color:#9ca3af;font-size:13px">Изпратено от формата за запитване на NRGsolution.bg</p>
+      </div>
+    `;
+
+    const { error: fnError } = await supabase.functions.invoke('send-email', {
+      body: {
+        to: ['savabarbarov96@gmail.com'],
+        reply_to: submission.email,
+        subject: `Ново запитване: ${submission.name} - ${submission.location || 'без локация'}`,
+        html,
+      },
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      },
+    });
+
+    if (fnError) {
+      console.error('Resend edge function error (questionnaire):', fnError);
+    } else {
+      console.log('Resend email sent OK (questionnaire)');
+    }
+  } catch (emailError) {
+    console.error('Failed to send email notification (non-blocking):', emailError);
+  }
+}
+
+// =====================================================
+// Contact Form API
+// =====================================================
+
+export async function submitContactForm(data: {
+  name: string;
+  phone: string;
+  city: string;
+  type: string;
+  message?: string;
+}): Promise<void> {
+  // Save to questionnaire_submissions with mostly null question fields
+  const { error } = await supabase
+    .from('questionnaire_submissions')
+    .insert({
+      name: data.name,
+      email: `${data.phone}@contact-form.local`,
+      phone: data.phone,
+      location: data.city,
+      property_type: data.type === 'home' ? 'Къща' : 'Бизнес обект',
+      purpose: data.message || null,
+    });
+
+  if (error) {
+    console.error('Error saving contact form submission:', error);
+    throw new Error(`Failed to save contact form: ${error.message}`);
+  }
+
+  // Send email via Supabase Edge Function → Resend (non-blocking)
+  try {
+    const rows = [
+      { label: 'Име', value: data.name },
+      { label: 'Телефон', value: data.phone },
+      { label: 'Град', value: data.city },
+      { label: 'Вид обект', value: data.type === 'home' ? 'Дом' : 'Бизнес' },
+      { label: 'Съобщение', value: data.message },
+    ]
+      .filter((f) => f.value)
+      .map(
+        (f) =>
+          `<tr><td style="padding:6px 12px;font-weight:600;color:#374151">${f.label}</td><td style="padding:6px 12px;color:#6b7280">${f.value}</td></tr>`
+      )
+      .join('');
+
+    const html = `
+      <div style="font-family:sans-serif;max-width:600px">
+        <h2 style="color:#0d9488">Ново съобщение от контактната форма</h2>
+        <table style="border-collapse:collapse;width:100%">
+          ${rows}
+        </table>
+        <p style="margin-top:20px;color:#9ca3af;font-size:13px">Изпратено от контактната форма на NRGsolution.bg</p>
+      </div>
+    `;
+
+    const { error: fnError } = await supabase.functions.invoke('send-email', {
+      body: {
+        to: ['savabarbarov96@gmail.com'],
+        subject: `Контактна форма: ${data.name} - ${data.city}`,
+        html,
+      },
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      },
+    });
+
+    if (fnError) {
+      console.error('Resend edge function error (contact):', fnError);
+    } else {
+      console.log('Resend email sent OK (contact)');
+    }
+  } catch (emailError) {
+    console.error('Failed to send contact form email (non-blocking):', emailError);
+  }
 }

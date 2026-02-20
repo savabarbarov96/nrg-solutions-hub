@@ -7,6 +7,7 @@ import { siteConfig } from '@/content/site-content';
 
 const navigation = [
   { name: 'Начало', href: '/' },
+  { name: 'EV Зарядни', href: '/зарядни-станции' },
   { name: 'Цени', href: '/цени' },
   { name: 'Проекти', href: '/проекти' },
   { name: 'Контакти', href: '/контакти' },

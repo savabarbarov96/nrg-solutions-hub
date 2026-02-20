@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 import Index from "./pages/Index";
@@ -16,6 +17,7 @@ import Promos from "./pages/Promos";
 import FAQ from "./pages/FAQ";
 import About from "./pages/About";
 import Contacts from "./pages/Contacts";
+import EVCharging from "./pages/EVCharging";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
@@ -27,6 +29,29 @@ import SupabaseTest from "./pages/admin/SupabaseTest";
 
 const queryClient = new QueryClient();
 
+function ScrollBehavior() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const behavior: "auto" | "smooth" = prefersReducedMotion ? "auto" : "smooth";
+
+    if (location.hash) {
+      const target = document.querySelector(decodeURIComponent(location.hash));
+      if (target) {
+        requestAnimationFrame(() => {
+          target.scrollIntoView({ behavior, block: "start" });
+        });
+        return;
+      }
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior });
+  }, [location.pathname, location.hash]);
+
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AdminAuthProvider>
@@ -34,6 +59,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollBehavior />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
@@ -47,6 +73,7 @@ const App = () => (
             <Route path="/faq" element={<FAQ />} />
             <Route path="/за-нас" element={<About />} />
             <Route path="/контакти" element={<Contacts />} />
+            <Route path="/зарядни-станции" element={<EVCharging />} />
 
             {/* Admin Routes */}
             <Route path="/admin/login" element={<Login />} />

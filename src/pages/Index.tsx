@@ -8,6 +8,7 @@ import { CertificatesSection } from '@/components/home/CertificatesSection';
 import { FAQSection } from '@/components/home/FAQSection';
 import { ContactSection } from '@/components/home/ContactSection';
 import { Pricing as PricingSection } from '@/components/ui/single-pricing-card-1';
+import { PricingOfferGrid } from '@/components/pricing/PricingOfferGrid';
 
 const Index = () => {
   return (
@@ -15,12 +16,13 @@ const Index = () => {
       <HeroSection />
       <BrandsSection />
       <PricingSection />
+      <PricingOfferGrid />
       <ProcessSection />
-      <WhyUsSection />
-      <CertificatesSection />
       <ProjectsSection />
+      <CertificatesSection />
       <FAQSection />
       <ContactSection />
+      <WhyUsSection />
     </Layout>
   );
 };

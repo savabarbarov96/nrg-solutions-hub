@@ -4,6 +4,7 @@ import {
   useUploadProjectImage,
   useDeleteProjectImage,
   useReorderProjectImages,
+  useUpdateImageRotation,
 } from '@/hooks/useProjects';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -19,7 +20,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Upload, X, GripVertical } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Upload, X, GripVertical, RotateCw, ZoomIn } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProjectImageManagerProps {
@@ -31,9 +33,11 @@ export function ProjectImageManager({ projectId }: ProjectImageManagerProps) {
   const uploadMutation = useUploadProjectImage();
   const deleteMutation = useDeleteProjectImage();
   const reorderMutation = useReorderProjectImages();
+  const rotationMutation = useUpdateImageRotation();
 
   const [imageToDelete, setImageToDelete] = useState<number | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<{ url: string; rotation: number } | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -81,6 +85,11 @@ export function ProjectImageManager({ projectId }: ProjectImageManagerProps) {
     }
   };
 
+  const handleRotate = (imageId: number, currentRotation: number) => {
+    const newRotation = (currentRotation + 90) % 360;
+    rotationMutation.mutate({ imageId, rotation: newRotation, projectId });
+  };
+
   const handleDragStart = (index: number) => {
     setDraggedIndex(index);
   };
@@ -113,7 +122,7 @@ export function ProjectImageManager({ projectId }: ProjectImageManagerProps) {
       <div>
         <Label>Project Images</Label>
         <p className="text-sm text-muted-foreground">
-          Upload images for this project. Drag to reorder.
+          Upload images for this project. Drag to reorder. Rotate or preview images.
         </p>
       </div>
 
@@ -161,19 +170,43 @@ export function ProjectImageManager({ projectId }: ProjectImageManagerProps) {
                     src={image.image_url}
                     alt={`Project image ${index + 1}`}
                     className="object-cover w-full h-full"
+                    style={{ transform: `rotate(${image.rotation || 0}deg)` }}
                   />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <GripVertical className="h-5 w-5 text-white" />
                   </div>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => setImageToDelete(image.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  {/* Action buttons */}
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => { e.stopPropagation(); setLightboxImage({ url: image.image_url, rotation: image.rotation || 0 }); }}
+                      title="Preview"
+                    >
+                      <ZoomIn className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => { e.stopPropagation(); handleRotate(image.id, image.rotation || 0); }}
+                      title="Rotate 90°"
+                    >
+                      <RotateCw className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setImageToDelete(image.id)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                   {index === 0 && (
                     <div className="absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                       Primary
@@ -191,6 +224,30 @@ export function ProjectImageManager({ projectId }: ProjectImageManagerProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Lightbox Preview Dialog */}
+      <Dialog open={lightboxImage !== null} onOpenChange={() => setLightboxImage(null)}>
+        <DialogContent className="max-w-4xl p-0">
+          <div className="relative flex items-center justify-center p-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-10 bg-black/50 text-white hover:bg-black/70"
+              onClick={() => setLightboxImage(null)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            {lightboxImage && (
+              <img
+                src={lightboxImage.url}
+                alt="Preview"
+                className="max-w-full max-h-[80vh] object-contain"
+                style={{ transform: `rotate(${lightboxImage.rotation}deg)` }}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={imageToDelete !== null} onOpenChange={() => setImageToDelete(null)}>

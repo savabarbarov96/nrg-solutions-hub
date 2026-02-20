@@ -10,6 +10,8 @@ import {
   uploadProjectImage,
   deleteProjectImage,
   reorderProjectImages,
+  updateImageRotation,
+  reorderProjects,
 } from '@/services/api';
 import type { ProjectInsert, ProjectUpdate } from '@/types/database';
 import { projects as fallbackProjects } from '@/content/site-content';
@@ -115,6 +117,18 @@ export function useDeleteProject() {
   });
 }
 
+export function useReorderProjects() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (orderedProjects: { id: number; slug: string; display_order: number }[]) =>
+      reorderProjects(orderedProjects),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+    },
+  });
+}
+
 // =====================================================
 // Project Images Mutations
 // =====================================================
@@ -163,6 +177,19 @@ export function useReorderProjectImages() {
     }) => reorderProjectImages(updates),
     onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.images(projectId) });
+    },
+  });
+}
+
+export function useUpdateImageRotation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ imageId, rotation, projectId }: { imageId: number; rotation: number; projectId: number }) =>
+      updateImageRotation(imageId, rotation),
+    onSuccess: (_, { projectId }) => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.images(projectId) });
+      queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
   });
 }

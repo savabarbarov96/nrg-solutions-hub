@@ -37,9 +37,9 @@ const services = [
   },
   {
     icon: Zap,
-    title: 'EV charging station',
-    description: 'Placeholder секция. Детайлите за услугата ще бъдат допълнени.',
-    href: '#ev-charging',
+    title: 'EV зарядна станция',
+    description: 'Домашна зарядна станция за електромобили, интегрирана с вашата соларна система за зареждане от слънчева енергия.',
+    href: '/зарядни-станции',
   },
 ];
 
@@ -135,16 +135,27 @@ const Services = () => {
 
       <section id="ev-charging" className="section-padding bg-muted/30">
         <div className="container-section">
-          <div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-primary/35 bg-white p-8 text-center">
-            <span className="section-eyebrow">Placeholder</span>
-            <h2 className="heading-section mt-5 text-foreground">EV charging station</h2>
-            <p className="text-body mt-4">Детайлите за услугата ще се допълнят. За момента: обадете се за предварителна информация.</p>
-            <Button variant="accent" className="mt-6" asChild>
-              <a href={siteConfig.phoneHref}>
-                <Phone className="mr-2 h-5 w-5" />
-                Обади се за информация
-              </a>
-            </Button>
+          <div className="mx-auto max-w-3xl rounded-2xl border border-primary/20 bg-white p-8 text-center shadow-soft">
+            <span className="section-eyebrow">EV зарядни станции</span>
+            <h2 className="heading-section mt-5 text-foreground">Домашна зарядна станция за електромобили</h2>
+            <p className="text-body mt-4">
+              Комбинирайте соларна система с EV зарядна станция и зареждайте автомобила си от собственото си слънце.
+              Виж пълната страница за детайли, предимства и как да запишете безплатен оглед.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button variant="accent" asChild>
+                <a href="/зарядни-станции">
+                  <Zap className="mr-2 h-5 w-5" />
+                  Виж EV зарядни станции
+                </a>
+              </Button>
+              <Button variant="outline" asChild>
+                <a href={siteConfig.phoneHref}>
+                  <Phone className="mr-2 h-5 w-5" />
+                  Обади се
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

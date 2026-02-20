@@ -8,7 +8,18 @@ export const siteConfig = {
   workingHours: 'Пон - Пет: 9:00 - 18:00',
 };
 
-export const brands = ['Dyness', 'Diae', 'Jinko', 'JA Solar', 'Canadian Solar', 'Longi'];
+export type Brand = { name: string; logo: string };
+
+export const brands: Brand[] = [
+  { name: 'Dyness', logo: '/brands/dyness.png' },
+  { name: 'Deye', logo: '/brands/deye.png' },
+  { name: 'Jinko', logo: '/brands/jinko.png' },
+  { name: 'JA Solar', logo: '/brands/ja-solar.png' },
+  { name: 'Canadian Solar', logo: '/brands/canadian-solar.png' },
+  { name: 'Longi', logo: '/brands/longi.png' },
+  { name: 'Solis', logo: '/brands/solis.png' },
+  { name: 'Growatt', logo: '/brands/growatt.png' },
+];
 
 export type PackageType = {
   id: '8kw' | '12kw' | '15kw';
@@ -78,12 +89,14 @@ export type ProjectImageItem = {
   id: number;
   image_url: string;
   display_order: number;
+  rotation?: number;
 };
 
 export type ProjectItem = {
   id: number;
   slug: string;
   image: string;
+  image_rotation?: number;
   city: string;
   power: string;
   type: ProjectType;
@@ -91,6 +104,7 @@ export type ProjectItem = {
   summary: string;
   completed_scope: string[];
   solis_note: string;
+  display_order: number;
   integration_name?: string;
   integration_note?: string;
   static_images: ProjectImageItem[];
@@ -328,6 +342,7 @@ export const projects: ProjectItem[] = projectSeeds.map((seed, index) => {
     summary: seed.summary,
     completed_scope: seed.completed_scope,
     solis_note: seed.solis_note,
+    display_order: index,
     integration_name: seed.integration_name || inferIntegrationName(seed.slug),
     integration_note: seed.integration_note || seed.solis_note,
     image: static_images[0]?.image_url || '',

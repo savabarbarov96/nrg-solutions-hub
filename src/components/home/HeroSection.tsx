@@ -36,12 +36,22 @@ export function HeroSection() {
             Premium Solar Systems
           </div>
           <h1 className="reveal-up reveal-delay-1 mt-5 text-4xl font-extrabold leading-[0.98] text-white sm:text-6xl lg:text-7xl">
-            ВКлючи се в бъдещето
+            Включи се в бъдещето
           </h1>
-          <p className="reveal-up reveal-delay-2 mt-6 max-w-2xl text-base leading-relaxed text-white/85 sm:text-xl">
-            Кино-визия, инженерна прецизност и цялостно изпълнение на фотоволтаични системи за дом и бизнес в цяла
-            България.
-          </p>
+          <div className="reveal-up reveal-delay-2 mt-6 flex flex-wrap gap-3">
+            <div className="flex items-center gap-2.5 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 backdrop-blur-sm">
+              <span className="text-xl font-extrabold text-accent sm:text-2xl">150+</span>
+              <span className="text-sm font-medium text-white/90">Реализирани проекти</span>
+            </div>
+            <div className="flex items-center gap-2.5 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 backdrop-blur-sm">
+              <span className="text-xl font-extrabold text-accent sm:text-2xl">10 год.</span>
+              <span className="text-sm font-medium text-white/90">Гаранция на монтажа</span>
+            </div>
+            <div className="flex items-center gap-2.5 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 backdrop-blur-sm">
+              <span className="text-xl font-extrabold text-accent sm:text-2xl">5+</span>
+              <span className="text-sm font-medium text-white/90">Години опит в сферата</span>
+            </div>
+          </div>
 
           <div className="reveal-up reveal-delay-3 mt-9 flex flex-col gap-4 sm:flex-row">
             <Button variant="accent" size="xl" className="gap-3 text-base" asChild>

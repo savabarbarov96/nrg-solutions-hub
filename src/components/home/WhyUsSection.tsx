@@ -18,8 +18,8 @@ const features = [
   },
   {
     icon: ShieldCheck,
-    title: 'Политика за батерии',
-    description: 'При недостатъчна батерия монтажът на следващата е безплатен при условия.',
+    title: '10 години гаранция',
+    description: 'Гарантираме качеството на монтажа с 10-годишна гаранция за спокойствие.',
   },
   {
     icon: PlusCircle,
@@ -35,7 +35,7 @@ const features = [
 
 export function WhyUsSection() {
   return (
-    <section className="section-padding bg-muted/30">
+    <section className="section-padding bg-gradient-to-br from-teal-50 via-white to-emerald-50">
       <div className="container-section">
         <div className="mb-10 max-w-3xl">
           <span className="section-eyebrow">Защо NRGsolution</span>

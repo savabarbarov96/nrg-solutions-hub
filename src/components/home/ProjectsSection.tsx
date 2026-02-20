@@ -17,6 +17,7 @@ function ProjectCard({ project }: { project: any }) {
           src={project.image}
           alt={`${project.title} ${project.power} в ${project.city}`}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          style={project.image_rotation ? { transform: `rotate(${project.image_rotation}deg)` } : undefined}
         />
       ) : (
         <div className="h-full w-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5" />
@@ -71,7 +72,7 @@ export function ProjectsSection() {
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard key={project.slug} project={project} />
             ))}
           </div>
         )}

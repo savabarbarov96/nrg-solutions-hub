@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ProjectImageGalleryProps {
-  images: { id: number; image_url: string }[];
+  images: { id: number; image_url: string; rotation?: number }[];
 }
 
 export function ProjectImageGallery({ images }: ProjectImageGalleryProps) {
@@ -42,6 +42,7 @@ export function ProjectImageGallery({ images }: ProjectImageGalleryProps) {
             src={images[0].image_url}
             alt="Project"
             className="w-full h-auto object-cover"
+            style={images[0].rotation ? { transform: `rotate(${images[0].rotation}deg)` } : undefined}
           />
         </Card>
 
@@ -61,6 +62,7 @@ export function ProjectImageGallery({ images }: ProjectImageGalleryProps) {
                 src={images[0].image_url}
                 alt="Project"
                 className="w-full h-auto"
+                style={images[0].rotation ? { transform: `rotate(${images[0].rotation}deg)` } : undefined}
               />
             </div>
           </DialogContent>
@@ -87,6 +89,7 @@ export function ProjectImageGallery({ images }: ProjectImageGalleryProps) {
                     src={image.image_url}
                     alt={`Project ${index + 1}`}
                     className="w-full h-auto object-cover aspect-video"
+                    style={image.rotation ? { transform: `rotate(${image.rotation}deg)` } : undefined}
                   />
                 </Card>
               </div>
@@ -133,6 +136,7 @@ export function ProjectImageGallery({ images }: ProjectImageGalleryProps) {
                 src={image.image_url}
                 alt={`Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
+                style={image.rotation ? { transform: `rotate(${image.rotation}deg)` } : undefined}
               />
             </button>
           ))}
@@ -163,6 +167,7 @@ export function ProjectImageGallery({ images }: ProjectImageGalleryProps) {
                       src={image.image_url}
                       alt={`Project ${index + 1}`}
                       className="max-w-full max-h-full object-contain"
+                      style={image.rotation ? { transform: `rotate(${image.rotation}deg)` } : undefined}
                     />
                   </div>
                 ))}

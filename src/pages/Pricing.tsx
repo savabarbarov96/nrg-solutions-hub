@@ -3,6 +3,7 @@ import { Phone } from 'lucide-react';
 import { Pricing as PricingSection } from '@/components/ui/single-pricing-card-1';
 import { Button } from '@/components/ui/button';
 import { siteConfig } from '@/content/site-content';
+import { PricingOfferGrid } from '@/components/pricing/PricingOfferGrid';
 
 const Pricing = () => {
   return (
@@ -20,6 +21,7 @@ const Pricing = () => {
       </section>
 
       <PricingSection />
+      <PricingOfferGrid />
 
       <section className="section-padding bg-background">
         <div className="container-section">

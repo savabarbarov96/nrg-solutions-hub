@@ -98,9 +98,9 @@ export function Footer() {
           <div className="marquee-wrap overflow-hidden rounded-xl border border-primary-foreground/10 py-4">
             <div className="marquee-track gap-10 px-4">
               {[...brands, ...brands].map((brand, idx) => (
-                <span key={`${brand}-${idx}`} className="inline-flex items-center gap-2 rounded-lg bg-primary-foreground/5 px-4 py-2 text-sm font-semibold text-primary-foreground/80">
+                <span key={`${brand.name}-${idx}`} className="inline-flex items-center gap-2 rounded-lg bg-primary-foreground/5 px-4 py-2 text-sm font-semibold text-primary-foreground/80">
                   <Sparkles className="h-3.5 w-3.5 text-accent" />
-                  {brand}
+                  {brand.name}
                 </span>
               ))}
             </div>

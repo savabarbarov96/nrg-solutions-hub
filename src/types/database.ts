@@ -20,6 +20,7 @@ export type Database = {
           summary: string
           completed_scope: string[]
           solis_note: string
+          display_order: number
           created_at: string
           updated_at: string
         }
@@ -33,6 +34,7 @@ export type Database = {
           summary: string
           completed_scope: string[]
           solis_note: string
+          display_order?: number
           created_at?: string
           updated_at?: string
         }
@@ -46,6 +48,7 @@ export type Database = {
           summary?: string
           completed_scope?: string[]
           solis_note?: string
+          display_order?: number
           created_at?: string
           updated_at?: string
         }
@@ -56,6 +59,7 @@ export type Database = {
           project_id: number
           image_url: string
           display_order: number
+          rotation: number
           created_at: string
         }
         Insert: {
@@ -63,6 +67,7 @@ export type Database = {
           project_id: number
           image_url: string
           display_order?: number
+          rotation?: number
           created_at?: string
         }
         Update: {
@@ -70,6 +75,7 @@ export type Database = {
           project_id?: number
           image_url?: string
           display_order?: number
+          rotation?: number
           created_at?: string
         }
       }
@@ -111,6 +117,130 @@ export type Database = {
           updated_at?: string
         }
       }
+      pricing_offer_cards: {
+        Row: {
+          id: 'offer-8kw' | 'offer-12kw' | 'offer-15kw'
+          display_order: number
+          price_text: string
+          hero_image: string
+          short_title: string
+          includes_text: string
+          headline_lines: string[]
+          inverter_name: string
+          inverter_model: string
+          inverter_power_label: string
+          inverter_image: string
+          battery_name: string
+          battery_model: string
+          battery_energy_label: string
+          battery_image: string
+          panels_name: string
+          panels_model: string
+          panels_count: number
+          panels_image: string
+          cta_text: string
+          cta_href: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: 'offer-8kw' | 'offer-12kw' | 'offer-15kw'
+          display_order?: number
+          price_text: string
+          hero_image: string
+          short_title: string
+          includes_text: string
+          headline_lines: string[]
+          inverter_name: string
+          inverter_model: string
+          inverter_power_label: string
+          inverter_image: string
+          battery_name: string
+          battery_model: string
+          battery_energy_label: string
+          battery_image: string
+          panels_name: string
+          panels_model: string
+          panels_count: number
+          panels_image: string
+          cta_text?: string
+          cta_href?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: 'offer-8kw' | 'offer-12kw' | 'offer-15kw'
+          display_order?: number
+          price_text?: string
+          hero_image?: string
+          short_title?: string
+          includes_text?: string
+          headline_lines?: string[]
+          inverter_name?: string
+          inverter_model?: string
+          inverter_power_label?: string
+          inverter_image?: string
+          battery_name?: string
+          battery_model?: string
+          battery_energy_label?: string
+          battery_image?: string
+          panels_name?: string
+          panels_model?: string
+          panels_count?: number
+          panels_image?: string
+          cta_text?: string
+          cta_href?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      questionnaire_submissions: {
+        Row: {
+          id: number
+          name: string
+          email: string
+          phone: string | null
+          grid_type: string | null
+          purpose: string | null
+          power_needed: string | null
+          system_type: string | null
+          mounting_type: string | null
+          construction_stage: string | null
+          property_type: string | null
+          location: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: never
+          name: string
+          email: string
+          phone?: string | null
+          grid_type?: string | null
+          purpose?: string | null
+          power_needed?: string | null
+          system_type?: string | null
+          mounting_type?: string | null
+          construction_stage?: string | null
+          property_type?: string | null
+          location?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: never
+          name?: string
+          email?: string
+          phone?: string | null
+          grid_type?: string | null
+          purpose?: string | null
+          power_needed?: string | null
+          system_type?: string | null
+          mounting_type?: string | null
+          construction_stage?: string | null
+          property_type?: string | null
+          location?: string | null
+          created_at?: string
+        }
+      }
     }
   }
 }
@@ -127,3 +257,11 @@ export type ProjectImageUpdate = Database['public']['Tables']['project_images'][
 export type PricingPackage = Database['public']['Tables']['pricing_packages']['Row']
 export type PricingPackageInsert = Database['public']['Tables']['pricing_packages']['Insert']
 export type PricingPackageUpdate = Database['public']['Tables']['pricing_packages']['Update']
+
+export type PricingOfferCardId = Database['public']['Tables']['pricing_offer_cards']['Row']['id']
+export type PricingOfferCard = Database['public']['Tables']['pricing_offer_cards']['Row']
+export type PricingOfferCardInsert = Database['public']['Tables']['pricing_offer_cards']['Insert']
+export type PricingOfferCardUpdate = Database['public']['Tables']['pricing_offer_cards']['Update']
+
+export type QuestionnaireSubmission = Database['public']['Tables']['questionnaire_submissions']['Row']
+export type QuestionnaireSubmissionInsert = Database['public']['Tables']['questionnaire_submissions']['Insert']

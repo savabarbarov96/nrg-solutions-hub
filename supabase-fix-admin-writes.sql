@@ -9,15 +9,46 @@
 
 BEGIN;
 
+-- Ensure additional offer cards table exists
+CREATE TABLE IF NOT EXISTS public.pricing_offer_cards (
+  id TEXT PRIMARY KEY CHECK (id IN ('offer-8kw', 'offer-12kw', 'offer-15kw')),
+  display_order INTEGER NOT NULL DEFAULT 0,
+  price_text TEXT NOT NULL,
+  hero_image TEXT NOT NULL,
+  short_title TEXT NOT NULL,
+  includes_text TEXT NOT NULL,
+  headline_lines JSONB NOT NULL DEFAULT '[]'::jsonb,
+  inverter_name TEXT NOT NULL,
+  inverter_model TEXT NOT NULL,
+  inverter_power_label TEXT NOT NULL,
+  inverter_image TEXT NOT NULL,
+  battery_name TEXT NOT NULL,
+  battery_model TEXT NOT NULL,
+  battery_energy_label TEXT NOT NULL,
+  battery_image TEXT NOT NULL,
+  panels_name TEXT NOT NULL,
+  panels_model TEXT NOT NULL,
+  panels_count INTEGER NOT NULL,
+  panels_image TEXT NOT NULL,
+  cta_text TEXT NOT NULL DEFAULT 'Обади се',
+  cta_href TEXT NOT NULL DEFAULT 'tel:+3590894354538',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_pricing_offer_cards_display_order
+  ON public.pricing_offer_cards(display_order);
+
 -- Ensure RLS is enabled
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pricing_packages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.pricing_offer_cards ENABLE ROW LEVEL SECURITY;
 
 -- Ensure table/sequence privileges for Supabase API roles
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.projects TO anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.project_images TO anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.pricing_packages TO anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.pricing_offer_cards TO anon, authenticated;
 GRANT USAGE, SELECT ON SEQUENCE public.projects_id_seq TO anon, authenticated;
 GRANT USAGE, SELECT ON SEQUENCE public.project_images_id_seq TO anon, authenticated;
 
@@ -157,6 +188,52 @@ BEGIN
   ) THEN
     CREATE POLICY "Allow public delete on pricing_packages"
       ON public.pricing_packages FOR DELETE
+      TO public
+      USING (true);
+  END IF;
+
+  -- Pricing Offer Cards
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'pricing_offer_cards'
+      AND policyname = 'Allow public read access on pricing_offer_cards'
+  ) THEN
+    CREATE POLICY "Allow public read access on pricing_offer_cards"
+      ON public.pricing_offer_cards FOR SELECT
+      TO public
+      USING (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'pricing_offer_cards'
+      AND policyname = 'Allow public insert on pricing_offer_cards'
+  ) THEN
+    CREATE POLICY "Allow public insert on pricing_offer_cards"
+      ON public.pricing_offer_cards FOR INSERT
+      TO public
+      WITH CHECK (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'pricing_offer_cards'
+      AND policyname = 'Allow public update on pricing_offer_cards'
+  ) THEN
+    CREATE POLICY "Allow public update on pricing_offer_cards"
+      ON public.pricing_offer_cards FOR UPDATE
+      TO public
+      USING (true)
+      WITH CHECK (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'pricing_offer_cards'
+      AND policyname = 'Allow public delete on pricing_offer_cards'
+  ) THEN
+    CREATE POLICY "Allow public delete on pricing_offer_cards"
+      ON public.pricing_offer_cards FOR DELETE
       TO public
       USING (true);
   END IF;

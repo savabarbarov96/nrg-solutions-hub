@@ -553,8 +553,30 @@ export async function uploadPricingOfferCardImage(
 // =====================================================
 
 export async function submitQuestionnaire(
-  submission: QuestionnaireSubmissionInsert
+  submission: QuestionnaireSubmissionInsert,
+  image?: File
 ): Promise<void> {
+  // 0. Upload image to Supabase Storage if provided
+  let imageUrl: string | null = null;
+  if (image) {
+    const fileExt = image.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `contact-uploads/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('project-images')
+      .upload(filePath, image);
+
+    if (uploadError) {
+      console.error('Error uploading questionnaire image:', uploadError);
+    } else {
+      const { data: urlData } = supabase.storage
+        .from('project-images')
+        .getPublicUrl(filePath);
+      imageUrl = urlData.publicUrl;
+    }
+  }
+
   // 1. Save to database
   const { error } = await supabase
     .from('questionnaire_submissions')
@@ -586,12 +608,21 @@ export async function submitQuestionnaire(
       .map((f) => `<tr><td style="padding:6px 12px;font-weight:600;color:#374151">${f.label}</td><td style="padding:6px 12px;color:#6b7280">${f.value}</td></tr>`)
       .join('');
 
+    const imageSection = imageUrl
+      ? `<div style="margin-top:16px">
+          <p style="font-weight:600;color:#374151;margin-bottom:8px">Снимка на мястото:</p>
+          <a href="${imageUrl}" target="_blank" style="color:#0d9488;text-decoration:underline">Виж снимката</a>
+          <br/><img src="${imageUrl}" alt="Снимка от клиент" style="margin-top:8px;max-width:400px;border-radius:8px;border:1px solid #e5e7eb" />
+        </div>`
+      : '';
+
     const html = `
       <div style="font-family:sans-serif;max-width:600px">
         <h2 style="color:#0d9488">Ново запитване от сайта</h2>
         <table style="border-collapse:collapse;width:100%">
           ${filledFields}
         </table>
+        ${imageSection}
         <p style="margin-top:20px;color:#9ca3af;font-size:13px">Изпратено от формата за запитване на NRGsolution.bg</p>
       </div>
     `;

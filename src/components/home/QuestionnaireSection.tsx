@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Send, CheckCircle2 } from 'lucide-react';
+import { Send, CheckCircle2, ImagePlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -60,7 +60,26 @@ function ChipGroup({ label, options, value, onChange }: ChipGroupProps) {
 
 export function QuestionnaireSection() {
   const [submitted, setSubmitted] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const submitMutation = useSubmitQuestionnaire();
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const {
     register,
@@ -92,17 +111,20 @@ export function QuestionnaireSection() {
 
     try {
       await submitMutation.mutateAsync({
-        name: data.name,
-        email: data.email,
-        phone: data.phone || null,
-        grid_type: data.grid_type || null,
-        purpose: data.purpose || null,
-        power_needed: data.power_needed || null,
-        system_type: data.system_type || null,
-        mounting_type: data.mounting_type || null,
-        construction_stage: data.construction_stage || null,
-        property_type: data.property_type || null,
-        location: data.location || null,
+        data: {
+          name: data.name,
+          email: data.email,
+          phone: data.phone || null,
+          grid_type: data.grid_type || null,
+          purpose: data.purpose || null,
+          power_needed: data.power_needed || null,
+          system_type: data.system_type || null,
+          mounting_type: data.mounting_type || null,
+          construction_stage: data.construction_stage || null,
+          property_type: data.property_type || null,
+          location: data.location || null,
+        },
+        image: selectedImage || undefined,
       });
       setSubmitted(true);
     } catch {
@@ -232,6 +254,44 @@ export function QuestionnaireSection() {
             <div className="space-y-2">
               <Label htmlFor="q-location">Град / село / област</Label>
               <Input id="q-location" placeholder="напр. Стара Загора" {...register('location')} />
+            </div>
+
+            {/* Image upload */}
+            <div className="space-y-2">
+              <Label htmlFor="site-image">Може ли снимка на мястото за което искате да се монтират?</Label>
+              <input
+                ref={fileInputRef}
+                id="site-image"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+              {imagePreview ? (
+                <div className="relative inline-block">
+                  <img
+                    src={imagePreview}
+                    alt="Избрана снимка"
+                    className="h-28 w-auto rounded-xl border border-border object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-white shadow-sm hover:bg-destructive/90"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 px-4 py-4 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-muted/50"
+                >
+                  <ImagePlus className="h-5 w-5" />
+                  Качете снимка
+                </button>
+              )}
             </div>
 
             <Button

@@ -22,7 +22,7 @@ function BrandCard({ brand, variant }: { brand: typeof brands[number]; variant: 
             src={brand.logo}
             alt={brand.name}
             loading="eager"
-            className="max-h-[48px] max-w-[140px] w-auto h-auto object-contain grayscale opacity-70 transition-all duration-300 group-hover:grayscale-0 group-hover:opacity-100"
+            className="max-h-[48px] max-w-[140px] w-auto h-auto object-contain opacity-90 transition-all duration-300 group-hover:opacity-100"
             onError={() => setImgError(true)}
           />
         )}

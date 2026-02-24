@@ -15,8 +15,8 @@ const Index = () => {
     <Layout>
       <HeroSection />
       <BrandsSection />
+      <PricingOfferGrid title="Пакетни оферти" />
       <PricingSection />
-      <PricingOfferGrid />
       <ProcessSection />
       <ProjectsSection />
       <CertificatesSection />

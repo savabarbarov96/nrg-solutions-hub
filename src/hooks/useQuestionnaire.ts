@@ -4,6 +4,7 @@ import type { QuestionnaireSubmissionInsert } from '@/types/database';
 
 export function useSubmitQuestionnaire() {
   return useMutation({
-    mutationFn: (data: QuestionnaireSubmissionInsert) => submitQuestionnaire(data),
+    mutationFn: (params: { data: QuestionnaireSubmissionInsert; image?: File }) =>
+      submitQuestionnaire(params.data, params.image),
   });
 }

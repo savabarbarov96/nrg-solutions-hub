@@ -179,10 +179,13 @@ export function useReorderProjectImages() {
       updates,
     }: {
       projectId: number;
-      updates: { id: number; display_order: number }[];
-    }) => reorderProjectImages(updates),
-    onSuccess: (_, { projectId }) => {
+      updates: { id: number; image_url: string; display_order: number }[];
+    }) => reorderProjectImages(projectId, updates),
+    onSuccess: (result, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.images(projectId) });
+      if (result?.resolved_project_id && result.resolved_project_id !== projectId) {
+        queryClient.invalidateQueries({ queryKey: projectKeys.images(result.resolved_project_id) });
+      }
     },
   });
 }

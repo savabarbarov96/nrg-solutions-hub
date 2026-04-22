@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Upload, X, GripVertical, RotateCw, ZoomIn } from 'lucide-react';
+import { Upload, X, GripVertical, RotateCw, ZoomIn, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProjectImageManagerProps {
@@ -127,13 +127,22 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
     newImages.splice(draggedIndex, 1);
     newImages.splice(index, 0, draggedImage);
 
-    // Update display orders
     const updates = newImages.map((img, idx) => ({
       id: img.id,
+      image_url: img.image_url,
       display_order: idx,
     }));
 
-    reorderMutation.mutate({ projectId, updates });
+    reorderMutation.mutate(
+      { projectId, updates },
+      {
+        onSuccess: (result) => {
+          if (result?.resolved_project_id && result.resolved_project_id !== projectId) {
+            onProjectMaterialized?.(result.resolved_project_id);
+          }
+        },
+      }
+    );
     setDraggedIndex(index);
   };
 
@@ -141,12 +150,43 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
     setDraggedIndex(null);
   };
 
+  const moveImage = (index: number, direction: -1 | 1) => {
+    if (!images) return;
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= images.length) return;
+
+    const newImages = [...images];
+    [newImages[index], newImages[targetIndex]] = [newImages[targetIndex], newImages[index]];
+
+    const updates = newImages.map((img, idx) => ({
+      id: img.id,
+      image_url: img.image_url,
+      display_order: idx,
+    }));
+
+    reorderMutation.mutate(
+      { projectId, updates },
+      {
+        onSuccess: (result) => {
+          if (result?.resolved_project_id && result.resolved_project_id !== projectId) {
+            onProjectMaterialized?.(result.resolved_project_id);
+          }
+        },
+        onError: (err) => {
+          const msg = err instanceof Error ? err.message : 'Unknown error';
+          toast.error(`Failed to reorder: ${msg}`);
+          console.error('Reorder error:', err);
+        },
+      }
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div>
         <Label>Project Images</Label>
         <p className="text-sm text-muted-foreground">
-          Upload images for this project. Drag to reorder. Rotate or preview images.
+          Upload images for this project. Use the arrow buttons (or drag on desktop) to reorder. The first image is shown as the project cover.
         </p>
       </div>
 
@@ -172,13 +212,13 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
 
       {/* Images Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="aspect-video rounded-lg" />
           ))}
         </div>
       ) : images && images.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {images.map((image, index) => (
             <Card
               key={image.id}
@@ -186,7 +226,7 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
               onDragStart={() => handleDragStart(index)}
               onDragOver={(e) => handleDragOver(e, index)}
               onDragEnd={handleDragEnd}
-              className="cursor-move group relative overflow-hidden"
+              className="group relative overflow-hidden sm:cursor-move"
             >
               <CardContent className="p-0">
                 <div className="relative aspect-video">
@@ -197,12 +237,36 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
                     style={{ transform: `rotate(${image.rotation || 0}deg)` }}
                   />
 
-                  {/* Persistent drag handle (top-left) */}
-                  <div
-                    className="absolute top-2 left-2 flex h-8 w-8 items-center justify-center rounded-md bg-black/55 text-white shadow-sm backdrop-blur-sm"
-                    title="Drag to reorder"
-                  >
-                    <GripVertical className="h-4 w-4" />
+                  {/* Reorder controls (top-left): up/down arrows + drag handle */}
+                  <div className="absolute top-2 left-2 flex items-center gap-1 rounded-md bg-black/55 p-1 text-white shadow-sm backdrop-blur-sm">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      className="h-9 w-9"
+                      disabled={index === 0 || reorderMutation.isPending}
+                      onClick={(e) => { e.stopPropagation(); moveImage(index, -1); }}
+                      title="Move up (higher priority)"
+                    >
+                      <ArrowUp className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      className="h-9 w-9"
+                      disabled={!images || index === images.length - 1 || reorderMutation.isPending}
+                      onClick={(e) => { e.stopPropagation(); moveImage(index, 1); }}
+                      title="Move down (lower priority)"
+                    >
+                      <ArrowDown className="h-5 w-5" />
+                    </Button>
+                    <div
+                      className="hidden sm:flex h-9 w-6 items-center justify-center"
+                      title="Drag to reorder"
+                    >
+                      <GripVertical className="h-4 w-4" />
+                    </div>
                   </div>
 
                   {/* Persistent action buttons (top-right) */}
@@ -211,32 +275,37 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
                       type="button"
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9"
                       onClick={(e) => { e.stopPropagation(); setLightboxImage({ url: image.image_url, rotation: image.rotation || 0 }); }}
                       title="Preview"
                     >
-                      <ZoomIn className="h-4 w-4" />
+                      <ZoomIn className="h-5 w-5" />
                     </Button>
                     <Button
                       type="button"
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9"
                       onClick={(e) => { e.stopPropagation(); handleRotate(image.id, image.rotation || 0, image.image_url); }}
                       title="Rotate 90°"
                     >
-                      <RotateCw className="h-4 w-4" />
+                      <RotateCw className="h-5 w-5" />
                     </Button>
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9"
                       onClick={(e) => { e.stopPropagation(); setImageToDelete(image.id); }}
                       title="Delete"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-5 w-5" />
                     </Button>
+                  </div>
+
+                  {/* Order badge (bottom-right) */}
+                  <div className="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-xs font-medium text-white shadow-sm">
+                    #{index + 1}
                   </div>
 
                   {index === 0 && (

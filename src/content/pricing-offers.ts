@@ -111,7 +111,7 @@ export const pricingOffers: PricingOffer[] = [
       alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_440}`,
     },
     ctaText: 'Обади се',
-    ctaHref: 'tel:+3590894354538',
+    ctaHref: 'tel:+359894354538',
   },
   {
     id: 'offer-mono-lv-12kw',
@@ -144,7 +144,7 @@ export const pricingOffers: PricingOffer[] = [
       alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_440}`,
     },
     ctaText: 'Обади се',
-    ctaHref: 'tel:+3590894354538',
+    ctaHref: 'tel:+359894354538',
   },
   {
     id: 'offer-3p-lv-12kw',
@@ -177,7 +177,7 @@ export const pricingOffers: PricingOffer[] = [
       alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_580}`,
     },
     ctaText: 'Обади се',
-    ctaHref: 'tel:+3590894354538',
+    ctaHref: 'tel:+359894354538',
   },
   {
     id: 'offer-3p-lv-15kw',
@@ -210,7 +210,7 @@ export const pricingOffers: PricingOffer[] = [
       alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_580}`,
     },
     ctaText: 'Обади се',
-    ctaHref: 'tel:+3590894354538',
+    ctaHref: 'tel:+359894354538',
   },
   {
     id: 'offer-3p-hv-8kw',
@@ -243,7 +243,7 @@ export const pricingOffers: PricingOffer[] = [
       alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_580}`,
     },
     ctaText: 'Обади се',
-    ctaHref: 'tel:+3590894354538',
+    ctaHref: 'tel:+359894354538',
   },
   {
     id: 'offer-3p-hv-20kw',
@@ -276,7 +276,7 @@ export const pricingOffers: PricingOffer[] = [
       alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_580}`,
     },
     ctaText: 'Обади се',
-    ctaHref: 'tel:+3590894354538',
+    ctaHref: 'tel:+359894354538',
   },
 ];
 

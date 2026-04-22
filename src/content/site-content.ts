@@ -1,7 +1,7 @@
 export const siteConfig = {
   companyName: 'NRGsolution',
   phoneDisplay: '089 435 4538',
-  phoneHref: 'tel:+3590894354538',
+  phoneHref: 'tel:+359894354538',
   email: 'Nrgoplossingen@gmail.com',
   address: 'Стара Загора, ул. Ген. Столетов 199',
   serviceArea: 'Цяла България',

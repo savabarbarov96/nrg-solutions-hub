@@ -277,6 +277,15 @@ export async function deleteProject(id: number): Promise<void> {
 // Project Ordering API
 // =====================================================
 
+function isDisplayOrderColumnMissing(err: { code?: string; message?: string } | null | undefined): boolean {
+  if (!err) return false;
+  const msg = (err.message ?? '').toLowerCase();
+  if (err.code === 'PGRST204' && /display_order/i.test(err.message ?? '')) return true;
+  if (err.code === '42703') return true; // Postgres undefined_column
+  if (/display_order/.test(msg) && /(column|find|does not exist|schema)/.test(msg)) return true;
+  return false;
+}
+
 export async function reorderProjects(
   orderedProjects: { id: number; slug: string; display_order: number }[]
 ): Promise<void> {
@@ -291,9 +300,9 @@ export async function reorderProjects(
 
     if (error) {
       console.error('Error reordering project:', project.slug, error);
-      if (error.code === 'PGRST204' && /display_order/i.test(error.message)) {
+      if (isDisplayOrderColumnMissing(error)) {
         throw new Error(
-          'The projects.display_order column is missing — run supabase-migration.sql (section F5) in Supabase to enable reordering.'
+          'projects.display_order column missing — run the SQL migration in Supabase (ALTER TABLE projects ADD COLUMN display_order INTEGER NOT NULL DEFAULT 0)'
         );
       }
       throw new Error(`Failed to reorder project "${project.slug}": ${error.message}`);
@@ -316,7 +325,13 @@ export async function reorderProjects(
         });
 
         if (insertError) {
+          if (isDisplayOrderColumnMissing(insertError)) {
+            throw new Error(
+              'projects.display_order column missing — run the SQL migration in Supabase (ALTER TABLE projects ADD COLUMN display_order INTEGER NOT NULL DEFAULT 0)'
+            );
+          }
           console.error('Error inserting static project for reorder:', staticProject.slug, insertError);
+          throw new Error(`Failed to create row for "${staticProject.slug}": ${insertError.message}`);
         }
       }
     }
@@ -365,15 +380,34 @@ export async function getProjectImages(projectId: number): Promise<ProjectImage[
   return staticImagesFallback(projectId);
 }
 
+function isRotationColumnMissing(err: { code?: string; message?: string } | null | undefined): boolean {
+  if (!err) return false;
+  const msg = (err.message ?? '').toLowerCase();
+  if (err.code === 'PGRST204' && /rotation/i.test(err.message ?? '')) return true;
+  if (err.code === '42703' && /rotation/i.test(err.message ?? '')) return true;
+  if (/rotation/.test(msg) && /(column|find|does not exist|schema)/.test(msg)) return true;
+  return false;
+}
+
 export async function updateImageRotation(imageId: number, rotation: number): Promise<void> {
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from('project_images')
     .update({ rotation })
-    .eq('id', imageId);
+    .eq('id', imageId)
+    .select('id');
 
   if (error) {
     console.error('Error updating image rotation:', error);
+    if (isRotationColumnMissing(error)) {
+      throw new Error(
+        'project_images.rotation column missing — run the SQL migration in Supabase (ALTER TABLE project_images ADD COLUMN rotation INTEGER NOT NULL DEFAULT 0)'
+      );
+    }
     throw new Error(`Failed to update image rotation: ${error.message}`);
+  }
+
+  if (!updated || updated.length === 0) {
+    throw new Error('Image not found in DB — upload a new image first to materialise this project, then try rotating again.');
   }
 }
 

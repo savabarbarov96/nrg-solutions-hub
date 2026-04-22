@@ -95,7 +95,16 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
 
   const handleRotate = (imageId: number, currentRotation: number) => {
     const newRotation = (currentRotation + 90) % 360;
-    rotationMutation.mutate({ imageId, rotation: newRotation, projectId });
+    rotationMutation.mutate(
+      { imageId, rotation: newRotation, projectId },
+      {
+        onError: (err) => {
+          const msg = err instanceof Error ? err.message : 'Unknown error';
+          toast.error(`Failed to rotate: ${msg}`, { duration: 10000 });
+          console.error('Rotate error:', err);
+        },
+      }
+    );
   };
 
   const handleDragStart = (index: number) => {

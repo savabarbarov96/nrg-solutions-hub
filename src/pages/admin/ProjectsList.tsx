@@ -90,8 +90,10 @@ export default function ProjectsList() {
 
     reorderMutation.mutate(ordered, {
       onSuccess: () => toast.success('Order saved'),
-      onError: () => {
-        toast.error('Failed to save order');
+      onError: (err) => {
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        toast.error(`Failed to save order: ${msg}`, { duration: 10000 });
+        console.error('Reorder error:', err);
         if (projects) setLocalProjects(projects); // revert
       },
     });

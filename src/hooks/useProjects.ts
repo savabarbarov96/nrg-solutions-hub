@@ -191,11 +191,23 @@ export function useUpdateImageRotation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ imageId, rotation, projectId }: { imageId: number; rotation: number; projectId: number }) =>
-      updateImageRotation(imageId, rotation),
-    onSuccess: (_, { projectId }) => {
+    mutationFn: ({
+      imageId,
+      rotation,
+      projectId,
+      imageUrl,
+    }: {
+      imageId: number;
+      rotation: number;
+      projectId: number;
+      imageUrl?: string;
+    }) => updateImageRotation(imageId, rotation, { projectId, imageUrl }),
+    onSuccess: (result, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.images(projectId) });
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      if (result?.resolved_project_id && result.resolved_project_id !== projectId) {
+        queryClient.invalidateQueries({ queryKey: projectKeys.images(result.resolved_project_id) });
+      }
     },
   });
 }

@@ -62,12 +62,21 @@ export default function ProjectsList() {
   };
 
   /* ── Drag handlers ── */
-  const handleDragStart = (index: number) => {
+  const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
+    // Firefox cancels drags that don't set any dataTransfer data, so we must
+    // set something. effectAllowed tells the browser the intended operation.
+    e.dataTransfer.effectAllowed = 'move';
+    try {
+      e.dataTransfer.setData('text/plain', String(index));
+    } catch {
+      /* some browsers restrict certain MIME types on drag start — ignore */
+    }
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
     if (index !== dragOverIndex) setDragOverIndex(index);
   };
 

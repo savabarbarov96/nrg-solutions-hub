@@ -389,26 +389,56 @@ function isRotationColumnMissing(err: { code?: string; message?: string } | null
   return false;
 }
 
-export async function updateImageRotation(imageId: number, rotation: number): Promise<void> {
-  const { data: updated, error } = await supabase
+export async function updateImageRotation(
+  imageId: number,
+  rotation: number,
+  hints?: { projectId?: number; imageUrl?: string }
+): Promise<{ resolved_project_id?: number }> {
+  // Try direct update by id first (the happy path for real DB rows)
+  const direct = await supabase
     .from('project_images')
     .update({ rotation })
     .eq('id', imageId)
     .select('id');
 
-  if (error) {
-    console.error('Error updating image rotation:', error);
-    if (isRotationColumnMissing(error)) {
+  if (direct.error) {
+    if (isRotationColumnMissing(direct.error)) {
       throw new Error(
         'project_images.rotation column missing — run the SQL migration in Supabase (ALTER TABLE project_images ADD COLUMN rotation INTEGER NOT NULL DEFAULT 0)'
       );
     }
-    throw new Error(`Failed to update image rotation: ${error.message}`);
+    console.error('Error updating image rotation:', direct.error);
+    throw new Error(`Failed to update image rotation: ${direct.error.message}`);
   }
 
-  if (!updated || updated.length === 0) {
-    throw new Error('Image not found in DB — upload a new image first to materialise this project, then try rotating again.');
+  if (direct.data && direct.data.length > 0) return {};
+
+  // The id didn't match — it's likely a synthetic id from a static_images
+  // preview (the project hasn't been materialised to the DB yet). Materialise
+  // the project and retry by looking up the image by url + project_id.
+  if (hints?.projectId == null || !hints.imageUrl) {
+    throw new Error('Image not found in DB and no hint provided to locate it.');
   }
+
+  const resolvedProjectId = await ensureProjectInDb(hints.projectId);
+
+  const retry = await supabase
+    .from('project_images')
+    .update({ rotation })
+    .eq('project_id', resolvedProjectId)
+    .eq('image_url', hints.imageUrl)
+    .select('id');
+
+  if (retry.error) {
+    console.error('Error retrying image rotation after materialisation:', retry.error);
+    throw new Error(`Failed to update image rotation: ${retry.error.message}`);
+  }
+
+  if (!retry.data || retry.data.length === 0) {
+    throw new Error('Image not found in DB even after materialising the project.');
+  }
+
+  return { resolved_project_id: resolvedProjectId };
 }
 
 // Ensure a DB row exists for a (possibly static) project id and return the

@@ -93,11 +93,18 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
     }
   };
 
-  const handleRotate = (imageId: number, currentRotation: number) => {
+  const handleRotate = (imageId: number, currentRotation: number, imageUrl: string) => {
     const newRotation = (currentRotation + 90) % 360;
     rotationMutation.mutate(
-      { imageId, rotation: newRotation, projectId },
+      { imageId, rotation: newRotation, projectId, imageUrl },
       {
+        onSuccess: (result) => {
+          // If rotating a hardcoded image materialised the project, move to the
+          // real DB id so subsequent operations hit the correct row.
+          if (result?.resolved_project_id && result.resolved_project_id !== projectId) {
+            onProjectMaterialized?.(result.resolved_project_id);
+          }
+        },
         onError: (err) => {
           const msg = err instanceof Error ? err.message : 'Unknown error';
           toast.error(`Failed to rotate: ${msg}`, { duration: 10000 });
@@ -215,7 +222,7 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
                       variant="secondary"
                       size="icon"
                       className="h-8 w-8"
-                      onClick={(e) => { e.stopPropagation(); handleRotate(image.id, image.rotation || 0); }}
+                      onClick={(e) => { e.stopPropagation(); handleRotate(image.id, image.rotation || 0, image.image_url); }}
                       title="Rotate 90°"
                     >
                       <RotateCw className="h-4 w-4" />

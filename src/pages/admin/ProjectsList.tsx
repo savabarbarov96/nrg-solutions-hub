@@ -29,7 +29,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Pencil, Trash2, ExternalLink, GripVertical, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, GripVertical, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -71,18 +71,15 @@ export default function ProjectsList() {
     if (index !== dragOverIndex) setDragOverIndex(index);
   };
 
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) {
-      setDraggedIndex(null);
-      setDragOverIndex(null);
-      return;
-    }
+  const applyReorder = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    if (fromIndex < 0 || toIndex < 0) return;
+    if (fromIndex >= localProjects.length || toIndex >= localProjects.length) return;
+    if (reorderMutation.isPending) return;
 
-    // Optimistic reorder
     const reordered = [...localProjects];
-    const [moved] = reordered.splice(draggedIndex, 1);
-    reordered.splice(dropIndex, 0, moved);
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, moved);
     setLocalProjects(reordered);
 
     const ordered = reordered.map((p, i) => ({
@@ -98,7 +95,11 @@ export default function ProjectsList() {
         if (projects) setLocalProjects(projects); // revert
       },
     });
+  };
 
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null) applyReorder(draggedIndex, dropIndex);
     setDraggedIndex(null);
     setDragOverIndex(null);
   };
@@ -116,7 +117,7 @@ export default function ProjectsList() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
             <p className="text-muted-foreground">
-              Drag rows to reorder · changes save automatically
+              Drag rows on desktop, or use ↑/↓ arrows on mobile · changes save automatically
             </p>
           </div>
           <Link to="/admin/projects/new">
@@ -189,15 +190,42 @@ export default function ProjectsList() {
                         isOver && 'border-t-2 border-primary bg-primary/5',
                       )}
                     >
-                      {/* Drag handle */}
+                      {/* Drag handle + mobile up/down buttons */}
                       <TableCell className="pr-0">
-                        <div
-                          className={cn(
-                            'flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground transition-colors',
-                            reorderMutation.isPending ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing',
-                          )}
-                        >
-                          <GripVertical className="h-5 w-5" />
+                        <div className="flex items-center gap-1">
+                          <div
+                            className={cn(
+                              'hidden sm:flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground transition-colors',
+                              reorderMutation.isPending ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing',
+                            )}
+                            title="Drag to reorder"
+                          >
+                            <GripVertical className="h-5 w-5" />
+                          </div>
+                          <div className="flex flex-col sm:hidden">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              disabled={index === 0 || reorderMutation.isPending}
+                              onClick={() => applyReorder(index, index - 1)}
+                              aria-label="Move up"
+                            >
+                              <ChevronUp className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              disabled={index === localProjects.length - 1 || reorderMutation.isPending}
+                              onClick={() => applyReorder(index, index + 1)}
+                              aria-label="Move down"
+                            >
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </TableCell>
 

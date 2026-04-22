@@ -1,10 +1,11 @@
 import { useEffect, useState, type ComponentType } from 'react';
-import { ClipboardCheck, FileText, ShieldCheck } from 'lucide-react';
+import { ClipboardCheck, FileText, ShieldCheck, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   offerHeroFallbackById,
   pricingOfferCategories,
   pricingOfferFeatures,
+  pricingOfferScope,
   type PricingOfferFeature,
   type PricingOffer,
 } from '@/content/pricing-offers';
@@ -167,6 +168,20 @@ export function PricingOfferCard({ offer, className, ctaHref }: PricingOfferCard
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="border-t border-border/60 bg-muted/20 px-4 py-3.5 sm:px-5">
+        <p className="mb-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          Включено в цената
+        </p>
+        <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+          {pricingOfferScope.map((item) => (
+            <li key={item} className="flex items-center gap-2 text-xs text-foreground">
+              <Check className="h-3.5 w-3.5 shrink-0 text-accent" />
+              {item}
+            </li>
+          ))}
+        </ul>
       </div>
     </article>
   );

@@ -20,7 +20,10 @@ ALTER TABLE pricing_offer_cards
 ALTER TABLE pricing_offer_cards
   ADD COLUMN IF NOT EXISTS price_note TEXT;
 
--- 4. Re-apply an id CHECK that permits the 6 new ids (edit-only, fixed set)
+-- 4. Wipe old rows BEFORE adding the new id CHECK so legacy ids don't violate it
+DELETE FROM pricing_offer_cards;
+
+-- 5. Re-apply an id CHECK that permits the 6 new ids (edit-only, fixed set)
 ALTER TABLE pricing_offer_cards
   ADD CONSTRAINT pricing_offer_cards_id_check
   CHECK (id IN (
@@ -29,12 +32,9 @@ ALTER TABLE pricing_offer_cards
     'offer-3p-hv-8kw', 'offer-3p-hv-20kw'
   ));
 
--- 5. Helpful index for category filtering
+-- 6. Helpful index for category filtering
 CREATE INDEX IF NOT EXISTS idx_pricing_offer_cards_category
   ON pricing_offer_cards(category, display_order);
-
--- 6. Wipe old rows and insert the 6 new ones
-DELETE FROM pricing_offer_cards;
 
 INSERT INTO pricing_offer_cards (
   id, category, display_order, price_text, price_note, hero_image, short_title, includes_text, headline_lines,

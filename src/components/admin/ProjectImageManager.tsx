@@ -172,11 +172,17 @@ export function ProjectImageManager({ projectId }: ProjectImageManagerProps) {
                     className="object-cover w-full h-full"
                     style={{ transform: `rotate(${image.rotation || 0}deg)` }}
                   />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <GripVertical className="h-5 w-5 text-white" />
+
+                  {/* Persistent drag handle (top-left) */}
+                  <div
+                    className="absolute top-2 left-2 flex h-8 w-8 items-center justify-center rounded-md bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                    title="Drag to reorder"
+                  >
+                    <GripVertical className="h-4 w-4" />
                   </div>
-                  {/* Action buttons */}
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+
+                  {/* Persistent action buttons (top-right) */}
+                  <div className="absolute top-2 right-2 flex gap-1 rounded-md bg-black/40 p-1 shadow-sm backdrop-blur-sm">
                     <Button
                       type="button"
                       variant="secondary"
@@ -202,13 +208,15 @@ export function ProjectImageManager({ projectId }: ProjectImageManagerProps) {
                       variant="destructive"
                       size="icon"
                       className="h-8 w-8"
-                      onClick={() => setImageToDelete(image.id)}
+                      onClick={(e) => { e.stopPropagation(); setImageToDelete(image.id); }}
+                      title="Delete"
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
+
                   {index === 0 && (
-                    <div className="absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                    <div className="absolute bottom-2 left-2 rounded bg-primary px-2 py-1 text-xs text-primary-foreground shadow-sm">
                       Primary
                     </div>
                   )}

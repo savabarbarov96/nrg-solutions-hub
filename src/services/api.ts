@@ -478,28 +478,36 @@ async function seedStaticImagesIfEmpty(
 
 // Ensure a DB row exists for a (possibly static) project id and return the
 // actual DB id. Used by operations whose FKs require the projects row to
-// exist (image inserts, etc.). Also seeds any missing hardcoded static
-// images so later operations (rotate, reorder, delete) can find them by URL.
+// exist (image inserts, etc.).
+//
+// IMPORTANT: Static-project ids and DB ids live in SEPARATE namespaces and
+// must never be compared numerically. DB project 10 might be
+// "solis-5kw-system" while static project 10 is "goodwe-54kw-business".
+// The only safe bridge between the two is `slug`. Always resolve via slug
+// before touching static_images, or we'll pollute one project with
+// another's hardcoded images.
 async function ensureProjectInDb(id: number): Promise<number> {
-  const staticProject = staticProjects.find((p) => p.id === id);
-
-  // Cheap existence check first
+  // If a DB row already exists with this id, that row wins. Do NOT seed
+  // static images here unless the slug actually matches a static project —
+  // otherwise we'd dump the wrong gallery into an unrelated project.
   const { data: existing } = await supabase
     .from('projects')
-    .select('id')
+    .select('id, slug')
     .eq('id', id)
     .maybeSingle();
   if (existing?.id) {
-    await seedStaticImagesIfEmpty(existing.id, staticProject?.static_images);
+    const matchingStatic = staticProjects.find((p) => p.slug === existing.slug);
+    await seedStaticImagesIfEmpty(existing.id, matchingStatic?.static_images);
     return existing.id;
   }
 
-  // Not in DB — find static project and upsert it by slug
+  // No DB row with this id. It must be a static-only id — look up by it.
+  const staticProject = staticProjects.find((p) => p.id === id);
   if (!staticProject) {
     throw new Error(`Project with id ${id} not found (not in DB or static list).`);
   }
 
-  // Try update by slug (in case a DB row exists with a different id)
+  // A DB row may exist under a different id with the same slug.
   const { data: bySlug } = await supabase
     .from('projects')
     .select('id')
@@ -510,7 +518,7 @@ async function ensureProjectInDb(id: number): Promise<number> {
     return bySlug.id;
   }
 
-  // Create the row from static data
+  // Genuinely new — create from static data, then seed its images.
   const { data: created, error: createError } = await supabase
     .from('projects')
     .insert({

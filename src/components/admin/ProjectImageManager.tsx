@@ -229,15 +229,14 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
               className="group relative overflow-hidden sm:cursor-move"
             >
               <CardContent className="p-0">
-                <div className="relative aspect-[4/3] bg-muted">
+                <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                   <img
                     src={image.image_url}
                     alt={`Project image ${index + 1}`}
-                    className="object-cover w-full h-full"
+                    className="absolute inset-0 w-full h-full object-cover"
                     style={{ transform: `rotate(${image.rotation || 0}deg)` }}
                   />
 
-                  {/* Order badge (top-left) */}
                   <div className="absolute top-2 left-2 rounded bg-black/70 px-2 py-1 text-xs font-semibold text-white shadow-sm">
                     #{index + 1}
                   </div>

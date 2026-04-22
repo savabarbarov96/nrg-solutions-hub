@@ -327,36 +327,42 @@ export async function reorderProjects(
 // Project Images API
 // =====================================================
 
-export async function getProjectImages(projectId: number): Promise<ProjectImage[]> {
-  const { data, error } = await supabase
-    .from('project_images')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('display_order', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching project images:', error);
-    throw new Error(`Failed to fetch project images: ${error.message}`);
-  }
-
-  if (data && data.length > 0) return data;
-
-  // DB has no images for this project id — if it's a static project that was
-  // never materialised into the DB, surface its hardcoded images so the admin
-  // can see them. They'll be materialised on first mutation via ensureProjectInDb.
+function staticImagesFallback(projectId: number): ProjectImage[] {
   const staticProject = staticProjects.find((p) => p.id === projectId);
-  if (staticProject?.static_images?.length) {
-    return staticProject.static_images.map((img) => ({
-      id: img.id,
-      project_id: projectId,
-      image_url: img.image_url,
-      display_order: img.display_order,
-      rotation: img.rotation ?? 0,
-      created_at: null,
-    })) as ProjectImage[];
+  if (!staticProject?.static_images?.length) return [];
+  return staticProject.static_images.map((img) => ({
+    id: img.id,
+    project_id: projectId,
+    image_url: img.image_url,
+    display_order: img.display_order,
+    rotation: img.rotation ?? 0,
+    created_at: null,
+  })) as ProjectImage[];
+}
+
+export async function getProjectImages(projectId: number): Promise<ProjectImage[]> {
+  try {
+    const { data, error } = await supabase
+      .from('project_images')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      console.warn('Error fetching project images, falling back to static:', error);
+      return staticImagesFallback(projectId);
+    }
+
+    if (data && data.length > 0) return data;
+  } catch (err) {
+    console.warn('Network/unexpected error fetching project images, falling back to static:', err);
+    return staticImagesFallback(projectId);
   }
 
-  return [];
+  // DB reachable but has no images for this id — fall back to static project's
+  // hardcoded images so the admin can see them. They're materialised on first
+  // mutation via ensureProjectInDb.
+  return staticImagesFallback(projectId);
 }
 
 export async function updateImageRotation(imageId: number, rotation: number): Promise<void> {

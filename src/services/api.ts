@@ -339,7 +339,24 @@ export async function getProjectImages(projectId: number): Promise<ProjectImage[
     throw new Error(`Failed to fetch project images: ${error.message}`);
   }
 
-  return data || [];
+  if (data && data.length > 0) return data;
+
+  // DB has no images for this project id — if it's a static project that was
+  // never materialised into the DB, surface its hardcoded images so the admin
+  // can see them. They'll be materialised on first mutation via ensureProjectInDb.
+  const staticProject = staticProjects.find((p) => p.id === projectId);
+  if (staticProject?.static_images?.length) {
+    return staticProject.static_images.map((img) => ({
+      id: img.id,
+      project_id: projectId,
+      image_url: img.image_url,
+      display_order: img.display_order,
+      rotation: img.rotation ?? 0,
+      created_at: null,
+    })) as ProjectImage[];
+  }
+
+  return [];
 }
 
 export async function updateImageRotation(imageId: number, rotation: number): Promise<void> {
@@ -398,6 +415,22 @@ async function ensureProjectInDb(id: number): Promise<number> {
   if (createError || !created) {
     throw new Error(`Failed to create project row for "${staticProject.slug}": ${createError?.message ?? 'unknown error'}`);
   }
+
+  // Seed project_images with the hardcoded static images so they're visible
+  // in the admin and on the public site under the new DB id.
+  if (staticProject.static_images && staticProject.static_images.length > 0) {
+    const imageRows = staticProject.static_images.map((img) => ({
+      project_id: created.id,
+      image_url: img.image_url,
+      display_order: img.display_order,
+    }));
+    const { error: imagesError } = await supabase.from('project_images').insert(imageRows);
+    if (imagesError) {
+      // Don't fail the whole operation — project row is already in DB and usable.
+      console.warn('Could not seed static images for new project row:', imagesError);
+    }
+  }
+
   return created.id;
 }
 

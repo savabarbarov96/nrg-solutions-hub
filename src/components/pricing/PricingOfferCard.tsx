@@ -3,6 +3,7 @@ import { ClipboardCheck, FileText, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   offerHeroFallbackById,
+  pricingOfferCategories,
   pricingOfferFeatures,
   type PricingOfferFeature,
   type PricingOffer,
@@ -33,6 +34,8 @@ export function PricingOfferCard({ offer, className, ctaHref }: PricingOfferCard
     setHeroImageSrc(offer.heroImage || offerHeroFallbackById[offer.id]);
   }, [offer.heroImage, offer.id]);
 
+  const categoryMeta = offer.category ? pricingOfferCategories[offer.category] : undefined;
+
   const products = [
     {
       key: 'panel',
@@ -60,7 +63,7 @@ export function PricingOfferCard({ offer, className, ctaHref }: PricingOfferCard
   return (
     <article
       className={cn(
-        'group mx-auto flex h-full w-full max-w-[520px] flex-col overflow-hidden rounded-[22px] border border-border/90 bg-card shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated',
+        'group mx-auto flex h-full w-full max-w-[540px] flex-col overflow-hidden rounded-[22px] border border-border/90 bg-card shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated',
         className
       )}
     >
@@ -72,7 +75,7 @@ export function PricingOfferCard({ offer, className, ctaHref }: PricingOfferCard
           loading="lazy"
           onError={() => {
             const fallbackSrc = offerHeroFallbackById[offer.id];
-            if (heroImageSrc !== fallbackSrc) {
+            if (fallbackSrc && heroImageSrc !== fallbackSrc) {
               setHeroImageSrc(fallbackSrc);
             }
           }}
@@ -81,13 +84,21 @@ export function PricingOfferCard({ offer, className, ctaHref }: PricingOfferCard
 
         <div className="relative z-10 flex h-full flex-col p-5 sm:p-6">
           <div className="flex items-start justify-between gap-4">
-            <h3 className="max-w-[68%] break-words text-[1.02rem] font-extrabold uppercase leading-[1.12] tracking-tight text-white sm:text-[1.18rem]">
-              {offer.headlineLines.map((line) => (
-                <span key={line} className="block">
-                  {line}
+            <div className="max-w-[68%] space-y-2">
+              {categoryMeta && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+                  {categoryMeta.shortLabel}
                 </span>
-              ))}
-            </h3>
+              )}
+              <h3 className="break-words text-[1.02rem] font-extrabold uppercase leading-[1.12] tracking-tight text-white sm:text-[1.18rem]">
+                {offer.headlineLines.map((line) => (
+                  <span key={line} className="block">
+                    {line}
+                  </span>
+                ))}
+              </h3>
+            </div>
 
             <ul className="w-full max-w-[150px] space-y-2 text-right">
               {pricingOfferFeatures.map((feature) => {
@@ -106,9 +117,16 @@ export function PricingOfferCard({ offer, className, ctaHref }: PricingOfferCard
             </ul>
           </div>
 
-          <p className="mt-auto text-center font-display text-[2.05rem] font-extrabold leading-none tracking-tight text-accent [text-shadow:0_0_16px_hsl(var(--accent)/0.5),0_2px_18px_rgba(0,0,0,0.55)] sm:text-[2.4rem]">
-            {offer.price}
-          </p>
+          <div className="mt-auto text-center">
+            <p className="font-display text-[2.05rem] font-extrabold leading-none tracking-tight text-accent [text-shadow:0_0_16px_hsl(var(--accent)/0.5),0_2px_18px_rgba(0,0,0,0.55)] sm:text-[2.4rem]">
+              {offer.price}
+            </p>
+            {offer.priceNote && (
+              <p className="mt-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-white/70">
+                {offer.priceNote}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

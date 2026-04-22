@@ -500,27 +500,53 @@ export async function getPricingOfferCards(): Promise<PricingOfferCard[]> {
   return data || [];
 }
 
+function isFullOfferCardUpdate(updates: PricingOfferCardUpdate): boolean {
+  const required: Array<keyof PricingOfferCardUpdate> = [
+    'display_order', 'price_text', 'short_title', 'includes_text', 'headline_lines',
+    'inverter_name', 'inverter_model', 'inverter_power_label', 'inverter_image',
+    'battery_name', 'battery_model', 'battery_energy_label', 'battery_image',
+    'panels_name', 'panels_model', 'panels_count', 'panels_image',
+    'cta_text', 'cta_href', 'hero_image',
+  ];
+  return required.every((k) => updates[k] !== undefined && updates[k] !== null);
+}
+
 export async function updatePricingOfferCard(
   id: PricingOfferCardId,
   updates: PricingOfferCardUpdate
 ): Promise<PricingOfferCard> {
-  const { data, error } = await supabase
+  // Try UPDATE first
+  const { data: updated, error: updateError } = await supabase
     .from('pricing_offer_cards')
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', id)
     .select()
     .maybeSingle();
 
-  if (error) {
-    console.error('Error updating pricing offer card:', error);
-    throw new Error(`Failed to update pricing offer card: ${error.message}`);
+  if (updateError) {
+    console.error('Error updating pricing offer card:', updateError);
+    throw new Error(`Failed to update pricing offer card: ${updateError.message}`);
   }
 
-  if (!data) {
-    throw new Error('Failed to update pricing offer card: card not found or update not permitted');
+  if (updated) return updated;
+
+  // Row didn't exist — if we have a full record, INSERT it (fallback for pre-v2 migrations).
+  if (!isFullOfferCardUpdate(updates)) {
+    throw new Error('Card not found in DB. Open it once and click "Запази промените" to create the row.');
   }
 
-  return data;
+  const { data: inserted, error: insertError } = await supabase
+    .from('pricing_offer_cards')
+    .insert({ id, ...updates, updated_at: new Date().toISOString() })
+    .select()
+    .single();
+
+  if (insertError) {
+    console.error('Error inserting pricing offer card:', insertError);
+    throw new Error(`Failed to create pricing offer card: ${insertError.message}`);
+  }
+
+  return inserted;
 }
 
 export async function uploadPricingOfferCardImage(
@@ -629,7 +655,7 @@ export async function submitQuestionnaire(
 
     const { error: fnError } = await supabase.functions.invoke('send-email', {
       body: {
-        to: ['savabarbarov96@gmail.com'],
+        to: ['nrgoplossingen@gmail.com'],
         reply_to: submission.email,
         subject: `Ново запитване: ${submission.name} - ${submission.location || 'без локация'}`,
         html,
@@ -705,7 +731,7 @@ export async function submitContactForm(data: {
 
     const { error: fnError } = await supabase.functions.invoke('send-email', {
       body: {
-        to: ['savabarbarov96@gmail.com'],
+        to: ['nrgoplossingen@gmail.com'],
         subject: `Контактна форма: ${data.name} - ${data.city}`,
         html,
       },

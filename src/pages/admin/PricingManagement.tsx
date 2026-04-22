@@ -17,7 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Pencil, Upload } from 'lucide-react';
 import { toast } from 'sonner';
-import type { PricingOfferCard, PricingOfferCardUpdate } from '@/types/database';
+import type { PricingOfferCard } from '@/types/database';
 import { pricingOffers, pricingOfferCategories, type PricingOfferCategoryId } from '@/content/pricing-offers';
 
 const offerCardFormSchema = z.object({
@@ -99,7 +99,6 @@ const categoryOrder: PricingOfferCategoryId[] = ['mono-lv', '3phase-lv', '3phase
 export default function PricingManagement() {
   const { data: offerCards, isLoading: isOfferCardsLoading } = usePricingOfferCards();
   const saveOfferCardMutation = useUpdatePricingOfferCard();
-  const patchOfferCardMutation = useUpdatePricingOfferCard();
   const uploadOfferCardImageMutation = useUploadPricingOfferCardImage();
 
   const [editingOfferCard, setEditingOfferCard] = useState<PricingOfferCard | null>(null);
@@ -264,13 +263,7 @@ export default function PricingManagement() {
       });
 
       offerCardForm.setValue(field, publicUrl, { shouldDirty: true, shouldValidate: true });
-
-      await patchOfferCardMutation.mutateAsync({
-        id: editingOfferCard.id,
-        updates: { [field]: publicUrl } as PricingOfferCardUpdate,
-      });
-
-      toast.success('Изображението е качено и свързано с офертата');
+      toast.success('Изображението е качено. Натиснете "Запази промените" за да го запишете.');
     } catch (error) {
       toast.error('Неуспешно качване на изображение');
       console.error(error);
@@ -366,23 +359,26 @@ export default function PricingManagement() {
       </div>
 
       <Dialog open={editingOfferCard !== null} onOpenChange={closeOfferCardDialog}>
-        <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="flex h-[92vh] max-w-3xl flex-col overflow-hidden p-0 sm:max-h-[92vh]">
+          <DialogHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <DialogTitle>Редактирай оферта</DialogTitle>
             <DialogDescription>
               Кратки полета за съдържание. Качването на изображения е директно и се привързва към текущата оферта.
             </DialogDescription>
+            {editingCategoryMeta && (
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-xs">
+                <span className="font-semibold uppercase tracking-[0.12em] text-accent">Категория</span>
+                <span className="font-medium text-foreground">{editingCategoryMeta.title}</span>
+                <span className="ml-auto text-muted-foreground">{editingOfferCard?.id}</span>
+              </div>
+            )}
           </DialogHeader>
 
-          {editingCategoryMeta && (
-            <div className="flex items-center gap-2 rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-xs">
-              <span className="font-semibold uppercase tracking-[0.12em] text-accent">Категория</span>
-              <span className="font-medium text-foreground">{editingCategoryMeta.title}</span>
-              <span className="ml-auto text-muted-foreground">{editingOfferCard?.id}</span>
-            </div>
-          )}
-
-          <form onSubmit={offerCardForm.handleSubmit(submitOfferCard)} className="space-y-5">
+          <form
+            onSubmit={offerCardForm.handleSubmit(submitOfferCard)}
+            className="flex min-h-0 flex-1 flex-col"
+          >
+            <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">
             <input type="hidden" {...offerCardForm.register('hero_image')} />
             <input type="hidden" {...offerCardForm.register('inverter_image')} />
             <input type="hidden" {...offerCardForm.register('battery_image')} />
@@ -485,20 +481,21 @@ export default function PricingManagement() {
               </div>
             </div>
 
-            {offerCardForm.formState.errors.hero_image && (
-              <p className="text-sm text-destructive">{offerCardForm.formState.errors.hero_image.message}</p>
-            )}
-            {offerCardForm.formState.errors.inverter_image && (
-              <p className="text-sm text-destructive">{offerCardForm.formState.errors.inverter_image.message}</p>
-            )}
-            {offerCardForm.formState.errors.battery_image && (
-              <p className="text-sm text-destructive">{offerCardForm.formState.errors.battery_image.message}</p>
-            )}
-            {offerCardForm.formState.errors.panels_image && (
-              <p className="text-sm text-destructive">{offerCardForm.formState.errors.panels_image.message}</p>
-            )}
+              {offerCardForm.formState.errors.hero_image && (
+                <p className="text-sm text-destructive">{offerCardForm.formState.errors.hero_image.message}</p>
+              )}
+              {offerCardForm.formState.errors.inverter_image && (
+                <p className="text-sm text-destructive">{offerCardForm.formState.errors.inverter_image.message}</p>
+              )}
+              {offerCardForm.formState.errors.battery_image && (
+                <p className="text-sm text-destructive">{offerCardForm.formState.errors.battery_image.message}</p>
+              )}
+              {offerCardForm.formState.errors.panels_image && (
+                <p className="text-sm text-destructive">{offerCardForm.formState.errors.panels_image.message}</p>
+              )}
+            </div>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex shrink-0 justify-end gap-2 border-t bg-background px-6 py-4">
               <Button type="button" variant="outline" onClick={closeOfferCardDialog}>
                 Отказ
               </Button>

@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Upload, X, GripVertical, RotateCw, ZoomIn, ArrowUp, ArrowDown } from 'lucide-react';
+import { Upload, X, RotateCw, ZoomIn, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProjectImageManagerProps {
@@ -212,13 +212,13 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
 
       {/* Images Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="aspect-video rounded-lg" />
+            <Skeleton key={i} className="aspect-[4/3] rounded-lg" />
           ))}
         </div>
       ) : images && images.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {images.map((image, index) => (
             <Card
               key={image.id}
@@ -229,7 +229,7 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
               className="group relative overflow-hidden sm:cursor-move"
             >
               <CardContent className="p-0">
-                <div className="relative aspect-video">
+                <div className="relative aspect-[4/3] bg-muted">
                   <img
                     src={image.image_url}
                     alt={`Project image ${index + 1}`}
@@ -237,57 +237,67 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
                     style={{ transform: `rotate(${image.rotation || 0}deg)` }}
                   />
 
-                  {/* Reorder controls (top-left): up/down arrows + drag handle */}
-                  <div className="absolute top-2 left-2 flex items-center gap-1 rounded-md bg-black/55 p-1 text-white shadow-sm backdrop-blur-sm">
+                  {/* Order badge (top-left) */}
+                  <div className="absolute top-2 left-2 rounded bg-black/70 px-2 py-1 text-xs font-semibold text-white shadow-sm">
+                    #{index + 1}
+                  </div>
+
+                  {index === 0 && (
+                    <div className="absolute top-2 right-2 rounded bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
+                      Primary
+                    </div>
+                  )}
+                </div>
+
+                {/* Toolbar BELOW the image — no overlap, big tap targets */}
+                <div className="flex items-center justify-between gap-2 border-t bg-card p-2">
+                  <div className="flex gap-1">
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="outline"
                       size="icon"
-                      className="h-9 w-9"
+                      className="h-10 w-10"
                       disabled={index === 0 || reorderMutation.isPending}
                       onClick={(e) => { e.stopPropagation(); moveImage(index, -1); }}
                       title="Move up (higher priority)"
+                      aria-label="Move up"
                     >
                       <ArrowUp className="h-5 w-5" />
                     </Button>
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="outline"
                       size="icon"
-                      className="h-9 w-9"
+                      className="h-10 w-10"
                       disabled={!images || index === images.length - 1 || reorderMutation.isPending}
                       onClick={(e) => { e.stopPropagation(); moveImage(index, 1); }}
                       title="Move down (lower priority)"
+                      aria-label="Move down"
                     >
                       <ArrowDown className="h-5 w-5" />
                     </Button>
-                    <div
-                      className="hidden sm:flex h-9 w-6 items-center justify-center"
-                      title="Drag to reorder"
-                    >
-                      <GripVertical className="h-4 w-4" />
-                    </div>
                   </div>
 
-                  {/* Persistent action buttons (top-right) */}
-                  <div className="absolute top-2 right-2 flex gap-1 rounded-md bg-black/40 p-1 shadow-sm backdrop-blur-sm">
+                  <div className="flex gap-1">
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="outline"
                       size="icon"
-                      className="h-9 w-9"
+                      className="h-10 w-10"
                       onClick={(e) => { e.stopPropagation(); setLightboxImage({ url: image.image_url, rotation: image.rotation || 0 }); }}
                       title="Preview"
+                      aria-label="Preview"
                     >
                       <ZoomIn className="h-5 w-5" />
                     </Button>
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="outline"
                       size="icon"
-                      className="h-9 w-9"
+                      className="h-10 w-10"
                       onClick={(e) => { e.stopPropagation(); handleRotate(image.id, image.rotation || 0, image.image_url); }}
                       title="Rotate 90°"
+                      aria-label="Rotate"
                     >
                       <RotateCw className="h-5 w-5" />
                     </Button>
@@ -295,24 +305,14 @@ export function ProjectImageManager({ projectId, onProjectMaterialized }: Projec
                       type="button"
                       variant="destructive"
                       size="icon"
-                      className="h-9 w-9"
+                      className="h-10 w-10"
                       onClick={(e) => { e.stopPropagation(); setImageToDelete(image.id); }}
                       title="Delete"
+                      aria-label="Delete"
                     >
                       <X className="h-5 w-5" />
                     </Button>
                   </div>
-
-                  {/* Order badge (bottom-right) */}
-                  <div className="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-xs font-medium text-white shadow-sm">
-                    #{index + 1}
-                  </div>
-
-                  {index === 0 && (
-                    <div className="absolute bottom-2 left-2 rounded bg-primary px-2 py-1 text-xs text-primary-foreground shadow-sm">
-                      Primary
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>

@@ -441,39 +441,38 @@ export async function updateImageRotation(
   return { resolved_project_id: resolvedProjectId };
 }
 
-// Insert any hardcoded static images that aren't already present in the DB
-// for this project (matched by image_url). Safe to call repeatedly — it
-// only inserts the missing ones, so every mutation path can call it without
-// risk of duplicates. This is what makes rotate/reorder work for static
-// projects whose row exists but whose images have never been materialised.
-async function seedStaticImagesIfMissing(
+// Seed the hardcoded static images into the DB — but ONLY when the project
+// currently has zero images in project_images. This is the first-time
+// materialisation path for static projects: once the admin has any image
+// in the DB (uploaded, or previously-seeded static), we never touch the
+// collection again. Crucially: we do NOT compare URLs and "top up missing"
+// static images, because that would re-add hardcoded images the admin may
+// have deleted, or pile them on top of their own uploads.
+async function seedStaticImagesIfEmpty(
   dbProjectId: number,
   staticImages: { image_url: string; display_order: number }[] | undefined
 ): Promise<void> {
   if (!staticImages || staticImages.length === 0) return;
 
-  const { data: existingImages, error: fetchError } = await supabase
+  const { count, error: countError } = await supabase
     .from('project_images')
-    .select('image_url')
+    .select('id', { count: 'exact', head: true })
     .eq('project_id', dbProjectId);
 
-  if (fetchError) {
-    console.warn('Could not check existing project_images before seeding:', fetchError);
+  if (countError) {
+    console.warn('Could not check project_images count before seeding:', countError);
     return;
   }
+  if ((count ?? 0) > 0) return;
 
-  const existingUrls = new Set((existingImages ?? []).map((r) => r.image_url));
-  const missing = staticImages.filter((img) => !existingUrls.has(img.image_url));
-  if (missing.length === 0) return;
-
-  const imageRows = missing.map((img) => ({
+  const imageRows = staticImages.map((img) => ({
     project_id: dbProjectId,
     image_url: img.image_url,
     display_order: img.display_order,
   }));
   const { error: insertError } = await supabase.from('project_images').insert(imageRows);
   if (insertError) {
-    console.warn('Could not seed missing static images:', insertError);
+    console.warn('Could not seed static images:', insertError);
   }
 }
 
@@ -491,7 +490,7 @@ async function ensureProjectInDb(id: number): Promise<number> {
     .eq('id', id)
     .maybeSingle();
   if (existing?.id) {
-    await seedStaticImagesIfMissing(existing.id, staticProject?.static_images);
+    await seedStaticImagesIfEmpty(existing.id, staticProject?.static_images);
     return existing.id;
   }
 
@@ -507,7 +506,7 @@ async function ensureProjectInDb(id: number): Promise<number> {
     .eq('slug', staticProject.slug)
     .maybeSingle();
   if (bySlug?.id) {
-    await seedStaticImagesIfMissing(bySlug.id, staticProject.static_images);
+    await seedStaticImagesIfEmpty(bySlug.id, staticProject.static_images);
     return bySlug.id;
   }
 
@@ -530,7 +529,7 @@ async function ensureProjectInDb(id: number): Promise<number> {
     throw new Error(`Failed to create project row for "${staticProject.slug}": ${createError?.message ?? 'unknown error'}`);
   }
 
-  await seedStaticImagesIfMissing(created.id, staticProject.static_images);
+  await seedStaticImagesIfEmpty(created.id, staticProject.static_images);
 
   return created.id;
 }

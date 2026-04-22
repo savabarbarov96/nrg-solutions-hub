@@ -291,6 +291,11 @@ export async function reorderProjects(
 
     if (error) {
       console.error('Error reordering project:', project.slug, error);
+      if (error.code === 'PGRST204' && /display_order/i.test(error.message)) {
+        throw new Error(
+          'The projects.display_order column is missing — run supabase-migration.sql (section F5) in Supabase to enable reordering.'
+        );
+      }
       throw new Error(`Failed to reorder project "${project.slug}": ${error.message}`);
     }
 

@@ -29,7 +29,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Pencil, Trash2, ExternalLink, GripVertical, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -37,8 +37,6 @@ export default function ProjectsList() {
   const [typeFilter, setTypeFilter] = useState<'all' | 'home' | 'business'>('all');
   const [projectToDelete, setProjectToDelete] = useState<{ id: number; title: string } | null>(null);
   const [localProjects, setLocalProjects] = useState<any[]>([]);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const { data: projects, isLoading } = useProjects(typeFilter === 'all' ? undefined : typeFilter);
   const deleteMutation = useDeleteProject();
@@ -59,25 +57,6 @@ export default function ProjectsList() {
     } catch {
       toast.error('Failed to delete project');
     }
-  };
-
-  /* ── Drag handlers ── */
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
-    // Firefox cancels drags that don't set any dataTransfer data, so we must
-    // set something. effectAllowed tells the browser the intended operation.
-    e.dataTransfer.effectAllowed = 'move';
-    try {
-      e.dataTransfer.setData('text/plain', String(index));
-    } catch {
-      /* some browsers restrict certain MIME types on drag start — ignore */
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (index !== dragOverIndex) setDragOverIndex(index);
   };
 
   const applyReorder = (fromIndex: number, toIndex: number) => {
@@ -108,18 +87,6 @@ export default function ProjectsList() {
     });
   };
 
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex !== null) applyReorder(draggedIndex, dropIndex);
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
-
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -128,7 +95,7 @@ export default function ProjectsList() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
             <p className="text-muted-foreground">
-              Drag rows on desktop, or use ↑/↓ arrows on mobile · changes save automatically
+              Use ↑/↓ arrows to reorder · changes save automatically
             </p>
           </div>
           <Link to="/admin/projects/new">
@@ -172,9 +139,9 @@ export default function ProjectsList() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40px]" />
+                  <TableHead className="w-[60px] text-center">Order</TableHead>
                   <TableHead className="w-[36px] text-center text-xs text-muted-foreground">#</TableHead>
-                  <TableHead className="w-[72px]">Image</TableHead>
+                  <TableHead className="w-[96px]">Image</TableHead>
                   <TableHead>Title</TableHead>
                   <TableHead className="hidden sm:table-cell">City</TableHead>
                   <TableHead className="hidden sm:table-cell">Power</TableHead>
@@ -184,59 +151,35 @@ export default function ProjectsList() {
               </TableHeader>
               <TableBody>
                 {localProjects.map((project, index) => {
-                  const isDragging = draggedIndex === index;
-                  const isOver = dragOverIndex === index && draggedIndex !== index;
-
                   return (
-                    <TableRow
-                      key={project.slug}
-                      draggable
-                      onDragStart={() => handleDragStart(index)}
-                      onDragOver={(e) => handleDragOver(e, index)}
-                      onDrop={(e) => handleDrop(e, index)}
-                      onDragEnd={handleDragEnd}
-                      className={cn(
-                        'transition-colors duration-150 select-none',
-                        isDragging && 'opacity-40 bg-muted',
-                        isOver && 'border-t-2 border-primary bg-primary/5',
-                      )}
-                    >
-                      {/* Drag handle + mobile up/down buttons */}
-                      <TableCell className="pr-0">
-                        <div className="flex items-center gap-1">
-                          <div
-                            className={cn(
-                              'hidden sm:flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground transition-colors',
-                              reorderMutation.isPending ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing',
-                            )}
-                            title="Drag to reorder"
+                    <TableRow key={project.slug}>
+                      {/* Up/down reorder buttons — work on desktop and mobile */}
+                      <TableCell className="pr-1">
+                        <div className="flex flex-col items-center gap-0.5">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            disabled={index === 0 || reorderMutation.isPending}
+                            onClick={() => applyReorder(index, index - 1)}
+                            aria-label="Move up"
+                            title="Move up"
                           >
-                            <GripVertical className="h-5 w-5" />
-                          </div>
-                          <div className="flex flex-col sm:hidden">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              disabled={index === 0 || reorderMutation.isPending}
-                              onClick={() => applyReorder(index, index - 1)}
-                              aria-label="Move up"
-                            >
-                              <ChevronUp className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              disabled={index === localProjects.length - 1 || reorderMutation.isPending}
-                              onClick={() => applyReorder(index, index + 1)}
-                              aria-label="Move down"
-                            >
-                              <ChevronDown className="h-4 w-4" />
-                            </Button>
-                          </div>
+                            <ChevronUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            disabled={index === localProjects.length - 1 || reorderMutation.isPending}
+                            onClick={() => applyReorder(index, index + 1)}
+                            aria-label="Move down"
+                            title="Move down"
+                          >
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
 
@@ -245,15 +188,14 @@ export default function ProjectsList() {
                         <span className="text-xs font-mono text-muted-foreground">{index + 1}</span>
                       </TableCell>
 
-                      {/* Thumbnail */}
+                      {/* Thumbnail — bigger so image is recognisable */}
                       <TableCell>
-                        <div className="h-12 w-12 overflow-hidden rounded-lg bg-muted">
+                        <div className="h-20 w-20 overflow-hidden rounded-lg border border-border bg-muted shadow-sm">
                           {project.image ? (
                             <img
                               src={project.image}
                               alt={project.title}
                               className="h-full w-full object-cover"
-                              draggable={false}
                             />
                           ) : (
                             <div className="h-full w-full bg-gradient-to-br from-primary/20 to-primary/5" />

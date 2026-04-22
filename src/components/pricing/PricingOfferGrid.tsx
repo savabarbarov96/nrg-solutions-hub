@@ -1,16 +1,28 @@
-import { pricingOffers, type PricingOffer } from '@/content/pricing-offers';
+import { pricingOffers, type PricingOffer, type PricingOfferCategoryId } from '@/content/pricing-offers';
 import { siteConfig } from '@/content/site-content';
 import { usePricingOfferCards } from '@/hooks/usePricing';
 import { cn } from '@/lib/utils';
 import { PricingOfferCard } from './PricingOfferCard';
+
+type GridTone = 'default' | 'muted' | 'accent';
 
 interface PricingOfferGridProps {
   className?: string;
   ctaHref?: string;
   title?: string;
   subtitle?: string;
+  eyebrow?: string;
   showHeading?: boolean;
+  category?: PricingOfferCategoryId;
+  tone?: GridTone;
+  sectionId?: string;
 }
+
+const toneBackgrounds: Record<GridTone, string> = {
+  default: 'bg-background',
+  muted: 'bg-muted/30',
+  accent: 'bg-accent/[0.04]',
+};
 
 function buildFallbackHeadline(panelsCount: number, batteryEnergyLabel: string): [string, string, string, string] {
   const pvSize = ((panelsCount * 540) / 1000).toFixed(1);
@@ -39,7 +51,9 @@ function useResolvedOffers(): PricingOffer[] {
     .sort((a, b) => a.display_order - b.display_order)
     .map((card) => ({
       id: card.id,
+      category: (card.category ?? 'mono-lv') as PricingOfferCategoryId,
       price: card.price_text,
+      priceNote: card.price_note ?? undefined,
       heroImage: card.hero_image,
       shortTitle: card.short_title,
       includes: card.includes_text,
@@ -75,22 +89,45 @@ export function PricingOfferGrid({
   ctaHref = siteConfig.phoneHref,
   title = 'Допълнителни пакетни оферти',
   subtitle = 'Фиксирани оферти с актуална цена и оборудване.',
+  eyebrow = 'Оферти',
   showHeading = true,
+  category,
+  tone = 'muted',
+  sectionId,
 }: PricingOfferGridProps) {
-  const offers = useResolvedOffers();
+  const allOffers = useResolvedOffers();
+  const offers = category ? allOffers.filter((offer) => offer.category === category) : allOffers;
+
+  if (offers.length === 0) {
+    return null;
+  }
+
+  const isPair = offers.length === 2;
 
   return (
-    <section className={cn('section-padding bg-muted/20', className)}>
-      <div className="container-section">
+    <section
+      id={sectionId}
+      className={cn('section-padding relative overflow-hidden', toneBackgrounds[tone], className)}
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent"
+      />
+      <div className="container-section relative">
         {showHeading && (
           <div className="mx-auto mb-10 max-w-3xl text-center">
-            <span className="section-eyebrow">Оферти</span>
+            <span className="section-eyebrow">{eyebrow}</span>
             <h2 className="heading-section mt-5 text-foreground">{title}</h2>
-            <p className="text-body mt-4">{subtitle}</p>
+            {subtitle && <p className="text-body mt-4">{subtitle}</p>}
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 xl:gap-7">
+        <div
+          className={cn(
+            'grid grid-cols-1 gap-6 md:grid-cols-2 xl:gap-7',
+            isPair ? 'mx-auto max-w-5xl' : 'xl:grid-cols-3'
+          )}
+        >
           {offers.map((offer) => (
             <PricingOfferCard key={offer.id} offer={offer} ctaHref={ctaHref} />
           ))}

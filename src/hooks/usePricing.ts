@@ -48,8 +48,10 @@ export function usePricingPackages() {
 
 const staticOfferCards = pricingOffers.map((offer, index) => ({
   id: offer.id,
+  category: offer.category,
   display_order: index + 1,
   price_text: offer.price,
+  price_note: offer.priceNote ?? null,
   hero_image: offer.heroImage,
   short_title: offer.shortTitle,
   includes_text: offer.includes,

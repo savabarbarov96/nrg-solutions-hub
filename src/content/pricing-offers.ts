@@ -9,7 +9,33 @@ export type OfferPanels = OfferProduct & {
   count: number;
 };
 
-export type PricingOfferCardId = 'offer-8kw' | 'offer-12kw' | 'offer-15kw';
+export const pricingOfferCategories = {
+  'mono-lv': {
+    id: 'mono-lv',
+    eyebrow: 'Монофазна · Ниско напрежение',
+    shortLabel: 'Монофазна · LV',
+    title: 'Монофазни нисковолтови системи',
+    subtitle: 'Икономични хибридни системи за еднофазни домакинства с LV батерия Dyness PowerBrick.',
+  },
+  '3phase-lv': {
+    id: '3phase-lv',
+    eyebrow: 'Трифазна · Ниско напрежение',
+    shortLabel: 'Трифазна · LV',
+    title: 'Трифазни нисковолтови системи',
+    subtitle: 'Мощни трифазни решения за домове и малки обекти с LV батерия Dyness PowerBrick.',
+  },
+  '3phase-hv': {
+    id: '3phase-hv',
+    eyebrow: 'Трифазна · Високо напрежение',
+    shortLabel: 'Трифазна · HV',
+    title: 'Трифазни високоволтови системи',
+    subtitle: 'HV хибридни системи с Dyness STACK100-3S за максимална ефективност и разширяемост.',
+  },
+} as const;
+
+export type PricingOfferCategoryId = keyof typeof pricingOfferCategories;
+
+export type PricingOfferCardId = string;
 
 export type PricingOfferFeature = {
   id: 'inspection' | 'project' | 'warranty';
@@ -18,7 +44,9 @@ export type PricingOfferFeature = {
 
 export type PricingOffer = {
   id: PricingOfferCardId;
+  category: PricingOfferCategoryId;
   price: string;
+  priceNote?: string;
   heroImage: string;
   shortTitle: string;
   includes: string;
@@ -30,102 +58,222 @@ export type PricingOffer = {
   ctaHref: string;
 };
 
-export const offerHeroFallbackById: Record<PricingOfferCardId, string> = {
-  'offer-8kw': '/assets/offers/hero-1.webp',
-  'offer-12kw': '/assets/offers/hero-2.webp',
-  'offer-15kw': '/assets/offers/hero-3.webp',
+export const offerHeroFallbackById: Record<string, string> = {
+  'offer-mono-lv-6kw': '/assets/offers/hero-1.webp',
+  'offer-mono-lv-12kw': '/assets/offers/hero-2.webp',
+  'offer-3p-lv-12kw': '/assets/offers/hero-3.webp',
+  'offer-3p-lv-15kw': '/assets/offers/hero-1.webp',
+  'offer-3p-hv-8kw': '/assets/offers/hero-2.webp',
+  'offer-3p-hv-20kw': '/assets/offers/hero-3.webp',
 };
+
+const PANEL_IMAGE = '/assets/products/panels/ja-solar-540w.png';
+const DYNESS_LV_IMAGE = '/assets/products/batteries/dyness-lv-powerbrick-plus.jpg';
+const DYNESS_HV_IMAGE = '/assets/products/batteries/dyness-stack100-3s.webp';
+const SOLIS_MONO_LV_IMAGE = '/assets/products/inverters/solis-s6-eh1p-l-plus.png';
+const SOLIS_3P_LV_IMAGE = '/assets/products/inverters/solis-s6-eh3p12k-h-eu.png';
+const SOLIS_3P_HV_8K_IMAGE = '/assets/products/inverters/solis-s6-eh1p8k-l-plus.png';
+const SOLIS_3P_HV_20K_IMAGE = '/assets/products/inverters/solis-s6-eh3p12k-h-eu.png';
+
+const PANEL_NAME = 'SolarNplus';
+const PANEL_MODEL_440 = 'Sirius 440W Topcon N-type';
+const PANEL_MODEL_580 = 'Sirius 580W Topcon N-type';
 
 export const pricingOffers: PricingOffer[] = [
   {
-    id: 'offer-8kw',
-    price: '6650€ с ДДС',
-    heroImage: offerHeroFallbackById['offer-8kw'],
-    shortTitle: 'ФЕЦ + Батерия 8 kW',
-    includes: 'Конструкция и кабели',
-    headlineLines: ['ТРИФАЗНА ХИБРИДНА', 'СИСТЕМА ~8.1kWp', 'БАТЕРИЯ 10.24kWh', 'С ВКЛЮЧЕН МОНТАЖ'],
+    id: 'offer-mono-lv-6kw',
+    category: 'mono-lv',
+    price: '6 320 €',
+    priceNote: 'без ДДС',
+    heroImage: offerHeroFallbackById['offer-mono-lv-6kw'],
+    shortTitle: 'ФЕЦ + Батерия 6 kW',
+    includes: 'Конструкция, кабели и монтаж',
+    headlineLines: ['МОНОФАЗНА ХИБРИДНА', 'СИСТЕМА ~7.9kWp', 'БАТЕРИЯ 16.07kWh', 'С ВКЛЮЧЕН МОНТАЖ'],
     inverter: {
       name: 'Solis',
-      model: 'S6-EH3P8K02-NV-YD-L',
+      model: 'S6-EH1P6K-L-PLUS',
+      powerLabel: '6 kW',
+      image: SOLIS_MONO_LV_IMAGE,
+      alt: 'Монофазен хибриден инвертор Solis S6-EH1P6K-L-PLUS 6kW',
+    },
+    battery: {
+      name: 'Dyness',
+      model: 'LV PowerBrick Plus 16.07kWh 51.2V/314Ah IP65 Heating',
+      energyLabel: '16.07 kWh',
+      image: DYNESS_LV_IMAGE,
+      alt: 'Батерия Dyness LV PowerBrick Plus 16.07kWh',
+    },
+    panels: {
+      name: PANEL_NAME,
+      model: PANEL_MODEL_440,
+      count: 18,
+      image: PANEL_IMAGE,
+      alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_440}`,
+    },
+    ctaText: 'Обади се',
+    ctaHref: 'tel:+3590894354538',
+  },
+  {
+    id: 'offer-mono-lv-12kw',
+    category: 'mono-lv',
+    price: '8 350 €',
+    priceNote: 'без ДДС',
+    heroImage: offerHeroFallbackById['offer-mono-lv-12kw'],
+    shortTitle: 'ФЕЦ + Батерия 12 kW',
+    includes: 'Конструкция, кабели и монтаж',
+    headlineLines: ['МОНОФАЗНА ХИБРИДНА', 'СИСТЕМА ~12.3kWp', 'БАТЕРИЯ 16.07kWh', 'С ВКЛЮЧЕН МОНТАЖ'],
+    inverter: {
+      name: 'Solis',
+      model: 'S6-EH1P(12-16)K03-NV-YD-L',
+      powerLabel: '12 kW',
+      image: SOLIS_MONO_LV_IMAGE,
+      alt: 'Монофазен хибриден инвертор Solis S6-EH1P(12-16)K03-NV-YD-L 12kW',
+    },
+    battery: {
+      name: 'Dyness',
+      model: 'LV PowerBrick Plus 16.07kWh 51.2V/314Ah IP65 Heating',
+      energyLabel: '16.07 kWh',
+      image: DYNESS_LV_IMAGE,
+      alt: 'Батерия Dyness LV PowerBrick Plus 16.07kWh',
+    },
+    panels: {
+      name: PANEL_NAME,
+      model: PANEL_MODEL_440,
+      count: 28,
+      image: PANEL_IMAGE,
+      alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_440}`,
+    },
+    ctaText: 'Обади се',
+    ctaHref: 'tel:+3590894354538',
+  },
+  {
+    id: 'offer-3p-lv-12kw',
+    category: '3phase-lv',
+    price: '8 300 €',
+    priceNote: 'без ДДС',
+    heroImage: offerHeroFallbackById['offer-3p-lv-12kw'],
+    shortTitle: 'ФЕЦ + Батерия 12 kW',
+    includes: 'Конструкция, кабели и монтаж',
+    headlineLines: ['ТРИФАЗНА ХИБРИДНА', 'СИСТЕМА ~12.18kWp', 'БАТЕРИЯ 16.07kWh', 'С ВКЛЮЧЕН МОНТАЖ'],
+    inverter: {
+      name: 'Solis',
+      model: 'S6-EH3P12K-H-EU',
+      powerLabel: '12 kW',
+      image: SOLIS_3P_LV_IMAGE,
+      alt: 'Трифазен хибриден инвертор Solis S6-EH3P12K-H-EU 12kW',
+    },
+    battery: {
+      name: 'Dyness',
+      model: 'LV PowerBrick Plus 16.07kWh 51.2V/314Ah IP65 Heating',
+      energyLabel: '16.07 kWh',
+      image: DYNESS_LV_IMAGE,
+      alt: 'Батерия Dyness LV PowerBrick Plus 16.07kWh',
+    },
+    panels: {
+      name: PANEL_NAME,
+      model: PANEL_MODEL_580,
+      count: 21,
+      image: PANEL_IMAGE,
+      alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_580}`,
+    },
+    ctaText: 'Обади се',
+    ctaHref: 'tel:+3590894354538',
+  },
+  {
+    id: 'offer-3p-lv-15kw',
+    category: '3phase-lv',
+    price: '9 390 €',
+    priceNote: 'без ДДС',
+    heroImage: offerHeroFallbackById['offer-3p-lv-15kw'],
+    shortTitle: 'ФЕЦ + 2× Батерия 15 kW',
+    includes: 'Конструкция, кабели и монтаж',
+    headlineLines: ['ТРИФАЗНА ХИБРИДНА', 'СИСТЕМА ~15.08kWp', '2× БАТЕРИЯ 16.07kWh', 'С ВКЛЮЧЕН МОНТАЖ'],
+    inverter: {
+      name: 'Solis',
+      model: 'S6 15kW Трифазен хибриден',
+      powerLabel: '15 kW',
+      image: SOLIS_3P_LV_IMAGE,
+      alt: 'Трифазен хибриден инвертор Solis S6 15kW',
+    },
+    battery: {
+      name: 'Dyness',
+      model: '2× LV PowerBrick Plus 16.07kWh 51.2V/314Ah IP65 Heating',
+      energyLabel: '2× 16.07 kWh',
+      image: DYNESS_LV_IMAGE,
+      alt: 'Батерия Dyness LV PowerBrick Plus 16.07kWh (2 броя)',
+    },
+    panels: {
+      name: PANEL_NAME,
+      model: PANEL_MODEL_580,
+      count: 26,
+      image: PANEL_IMAGE,
+      alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_580}`,
+    },
+    ctaText: 'Обади се',
+    ctaHref: 'tel:+3590894354538',
+  },
+  {
+    id: 'offer-3p-hv-8kw',
+    category: '3phase-hv',
+    price: '7 800 €',
+    priceNote: 'без ДДС',
+    heroImage: offerHeroFallbackById['offer-3p-hv-8kw'],
+    shortTitle: 'ФЕЦ + HV Батерия 8 kW',
+    includes: 'Конструкция, кабели и монтаж',
+    headlineLines: ['HV ХИБРИДНА', 'СИСТЕМА ~10kWp', 'HV БАТЕРИЯ 15.4kWh', 'С ВКЛЮЧЕН МОНТАЖ'],
+    inverter: {
+      name: 'Solis',
+      model: 'S6-EH1P8K-L-PLUS',
       powerLabel: '8 kW',
-      image: '/assets/products/inverters/Изображение-от-WhatsApp-на-2025-03-21-в-17.04.50_f9ec5397.jpg',
-      alt: 'Инвертор Solis S6-EH3P8K02-NV-YD-L',
+      image: SOLIS_3P_HV_8K_IMAGE,
+      alt: 'Хибриден инвертор Solis S6-EH1P8K-L-PLUS 8kW',
     },
     battery: {
       name: 'Dyness',
-      model: 'LV Powerbox G2 10.24kWh 51.2V/200Ah Heating',
-      energyLabel: '10.24 kWh',
-      image: '/assets/products/batteries/8230-01-0050_1.jpg',
-      alt: 'Батерия Dyness LV Powerbox G2 10.24kWh',
+      model: 'STACK100-3S 15.4kWh high voltage',
+      energyLabel: '15.4 kWh',
+      image: DYNESS_HV_IMAGE,
+      alt: 'Батерия Dyness STACK100-3S 15.4kWh high voltage',
     },
     panels: {
-      name: 'JA Solar',
-      model: '540W',
-      count: 15,
-      image: '/assets/products/panels/ja-solar-540w.png',
-      alt: 'Соларен панел JA Solar 540W',
+      name: PANEL_NAME,
+      model: PANEL_MODEL_580,
+      count: 17,
+      image: PANEL_IMAGE,
+      alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_580}`,
     },
     ctaText: 'Обади се',
     ctaHref: 'tel:+3590894354538',
   },
   {
-    id: 'offer-12kw',
-    price: '7750€ с ДДС',
-    heroImage: offerHeroFallbackById['offer-12kw'],
-    shortTitle: 'ФЕЦ + Батерия 12 kW (Deye)',
-    includes: 'Конструкция и кабели',
-    headlineLines: ['ТРИФАЗНА ХИБРИДНА', 'СИСТЕМА ~12.4kWp', 'БАТЕРИЯ 13.44kWh', 'С ВКЛЮЧЕН МОНТАЖ'],
-    inverter: {
-      name: 'Deye',
-      model: 'SUN-12K-SG05 LP3-EU-SM2',
-      powerLabel: '12 kW',
-      image: '/assets/products/inverters/15kwSolisINverter.png',
-      alt: 'Инвертор Deye SUN-12K-SG05 LP3-EU-SM2',
-    },
-    battery: {
-      name: 'Ritar',
-      model: 'BAT-15KWH-48V 13.44kWh',
-      energyLabel: '13.44 kWh',
-      image: '/assets/products/batteries/8230-01-0050_1.jpg',
-      alt: 'Батерия Ritar BAT-15KWH-48V 13.44kWh',
-    },
-    panels: {
-      name: 'JA Solar',
-      model: '540W',
-      count: 23,
-      image: '/assets/products/panels/ja-solar-540w.png',
-      alt: 'Соларен панел JA Solar 540W',
-    },
-    ctaText: 'Обади се',
-    ctaHref: 'tel:+3590894354538',
-  },
-  {
-    id: 'offer-15kw',
-    price: '8700€ с ДДС',
-    heroImage: offerHeroFallbackById['offer-15kw'],
-    shortTitle: 'ФЕЦ + Батерия 12 kW (Solis)',
-    includes: 'Конструкция и кабели',
-    headlineLines: ['ТРИФАЗНА ХИБРИДНА', 'СИСТЕМА ~12.4kWp', 'БАТЕРИЯ 14.33kWh', 'С ВКЛЮЧЕН МОНТАЖ'],
+    id: 'offer-3p-hv-20kw',
+    category: '3phase-hv',
+    price: '12 800 €',
+    priceNote: 'без ДДС',
+    heroImage: offerHeroFallbackById['offer-3p-hv-20kw'],
+    shortTitle: 'ФЕЦ + HV Батерия 20 kW',
+    includes: 'Конструкция, кабели и монтаж',
+    headlineLines: ['HV ТРИФАЗНА ХИБРИДНА', 'СИСТЕМА ~20.3kWp', 'HV БАТЕРИЯ 20.6kWh', 'С ВКЛЮЧЕН МОНТАЖ'],
     inverter: {
       name: 'Solis',
-      model: 'S6-EH3P12K02-NV-YD-L',
-      powerLabel: '12 kW',
-      image: '/assets/products/inverters/12kwSolisInverter.png',
-      alt: 'Инвертор Solis S6-EH3P12K02-NV-YD-L',
+      model: 'S6-EH3P20K-H',
+      powerLabel: '20 kW',
+      image: SOLIS_3P_HV_20K_IMAGE,
+      alt: 'Трифазен HV хибриден инвертор Solis S6-EH3P20K-H 20kW',
     },
     battery: {
       name: 'Dyness',
-      model: 'LV PowerBrick 14.33kWh 51.2V/280Ah Heating',
-      energyLabel: '14.33 kWh',
-      image: '/assets/products/batteries/dyness-power-brick 14KW.jpg',
-      alt: 'Батерия Dyness LV PowerBrick 14.33kWh',
+      model: 'STACK100-3S 20.6kWh high voltage',
+      energyLabel: '20.6 kWh',
+      image: DYNESS_HV_IMAGE,
+      alt: 'Батерия Dyness STACK100-3S 20.6kWh high voltage',
     },
     panels: {
-      name: 'JA Solar',
-      model: '540W',
-      count: 23,
-      image: '/assets/products/panels/ja-solar-540w.png',
-      alt: 'Соларен панел JA Solar 540W',
+      name: PANEL_NAME,
+      model: PANEL_MODEL_580,
+      count: 35,
+      image: PANEL_IMAGE,
+      alt: `Соларен панел ${PANEL_NAME} ${PANEL_MODEL_580}`,
     },
     ctaText: 'Обади се',
     ctaHref: 'tel:+3590894354538',
@@ -136,4 +284,12 @@ export const pricingOfferFeatures: PricingOfferFeature[] = [
   { id: 'inspection', label: 'БЕЗПЛАТЕН ОГЛЕД' },
   { id: 'project', label: 'ИЗГОТВЯНЕ НА ПРОЕКТ' },
   { id: 'warranty', label: '10 ГОДИНИ ГАРАНЦИЯ' },
+];
+
+export const pricingOfferScope: string[] = [
+  'Конструкция',
+  '100 м DC + 15 м AC',
+  'AC табло + система за байпас',
+  'Кабел канал, гофре, крепеж',
+  'Монтаж',
 ];

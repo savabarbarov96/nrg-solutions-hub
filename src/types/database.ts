@@ -119,9 +119,11 @@ export type Database = {
       }
       pricing_offer_cards: {
         Row: {
-          id: 'offer-8kw' | 'offer-12kw' | 'offer-15kw'
+          id: string
+          category: 'mono-lv' | '3phase-lv' | '3phase-hv'
           display_order: number
           price_text: string
+          price_note: string | null
           hero_image: string
           short_title: string
           includes_text: string
@@ -144,9 +146,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          id: 'offer-8kw' | 'offer-12kw' | 'offer-15kw'
+          id: string
+          category: 'mono-lv' | '3phase-lv' | '3phase-hv'
           display_order?: number
           price_text: string
+          price_note?: string | null
           hero_image: string
           short_title: string
           includes_text: string
@@ -169,9 +173,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          id?: 'offer-8kw' | 'offer-12kw' | 'offer-15kw'
+          id?: string
+          category?: 'mono-lv' | '3phase-lv' | '3phase-hv'
           display_order?: number
           price_text?: string
+          price_note?: string | null
           hero_image?: string
           short_title?: string
           includes_text?: string

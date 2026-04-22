@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Pencil, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import type { PricingOfferCard, PricingOfferCardUpdate } from '@/types/database';
-import { pricingOfferCategories, type PricingOfferCategoryId } from '@/content/pricing-offers';
+import { pricingOffers, pricingOfferCategories, type PricingOfferCategoryId } from '@/content/pricing-offers';
 
 const offerCardFormSchema = z.object({
   display_order: z.number().int().min(1, 'Display order must be 1 or higher'),
@@ -120,11 +120,48 @@ export default function PricingManagement() {
       '3phase-lv': [],
       '3phase-hv': [],
     };
-    for (const card of offerCards || []) {
+
+    const source = offerCards || [];
+
+    // Check all 3 categories are represented — if not, the DB has old/incomplete
+    // data (pre-v2 migration). Fall back to the static offers shaped as DB rows.
+    const allPresent = (['mono-lv', '3phase-lv', '3phase-hv'] as PricingOfferCategoryId[]).every(
+      (cat) => source.some((c) => (c.category ?? '') === cat)
+    );
+
+    const cards: PricingOfferCard[] = allPresent
+      ? source
+      : pricingOffers.map((o, i) => ({
+          id: o.id,
+          category: o.category,
+          display_order: i + 1,
+          price_text: o.price,
+          price_note: o.priceNote ?? null,
+          hero_image: o.heroImage,
+          short_title: o.shortTitle,
+          includes_text: o.includes,
+          headline_lines: [...o.headlineLines],
+          inverter_name: o.inverter.name,
+          inverter_model: o.inverter.model,
+          inverter_power_label: o.inverter.powerLabel,
+          inverter_image: o.inverter.image,
+          battery_name: o.battery.name,
+          battery_model: o.battery.model,
+          battery_energy_label: o.battery.energyLabel,
+          battery_image: o.battery.image,
+          panels_name: o.panels.name,
+          panels_model: o.panels.model,
+          panels_count: o.panels.count,
+          panels_image: o.panels.image,
+          cta_text: o.ctaText,
+          cta_href: o.ctaHref,
+          created_at: null,
+          updated_at: null,
+        }));
+
+    for (const card of cards) {
       const category = (card.category ?? 'mono-lv') as PricingOfferCategoryId;
-      if (groups[category]) {
-        groups[category].push(card);
-      }
+      if (groups[category]) groups[category].push(card);
     }
     for (const key of categoryOrder) {
       groups[key].sort((a, b) => a.display_order - b.display_order);

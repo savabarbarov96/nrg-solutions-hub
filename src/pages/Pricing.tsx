@@ -4,6 +4,7 @@ import { Pricing as PricingSection } from '@/components/ui/single-pricing-card-1
 import { Button } from '@/components/ui/button';
 import { siteConfig } from '@/content/site-content';
 import { PricingOfferGrid } from '@/components/pricing/PricingOfferGrid';
+import { pricingOfferCategories } from '@/content/pricing-offers';
 
 const Pricing = () => {
   return (
@@ -21,7 +22,33 @@ const Pricing = () => {
       </section>
 
       <PricingSection />
-      <PricingOfferGrid />
+
+      <PricingOfferGrid
+        sectionId="оферти-монофазна-lv"
+        category="mono-lv"
+        eyebrow={pricingOfferCategories['mono-lv'].eyebrow}
+        title={pricingOfferCategories['mono-lv'].title}
+        subtitle={pricingOfferCategories['mono-lv'].subtitle}
+        tone="default"
+      />
+
+      <PricingOfferGrid
+        sectionId="оферти-трифазна-lv"
+        category="3phase-lv"
+        eyebrow={pricingOfferCategories['3phase-lv'].eyebrow}
+        title={pricingOfferCategories['3phase-lv'].title}
+        subtitle={pricingOfferCategories['3phase-lv'].subtitle}
+        tone="muted"
+      />
+
+      <PricingOfferGrid
+        sectionId="оферти-трифазна-hv"
+        category="3phase-hv"
+        eyebrow={pricingOfferCategories['3phase-hv'].eyebrow}
+        title={pricingOfferCategories['3phase-hv'].title}
+        subtitle={pricingOfferCategories['3phase-hv'].subtitle}
+        tone="accent"
+      />
 
       <section className="section-padding bg-background">
         <div className="container-section">

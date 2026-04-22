@@ -23,54 +23,67 @@ export const pricingKeys = {
 // Pricing Queries
 // =====================================================
 
+const staticPackages = solarPackages.map((pkg) => ({
+  ...pkg,
+  price_eur: pkg.id === '8kw' ? 5900 : pkg.id === '12kw' ? 7750 : 9400,
+  ideal_for: pkg.idealFor,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+}));
+
 export function usePricingPackages() {
   return useQuery({
     queryKey: pricingKeys.packages(),
-    queryFn: getPricingPackages,
-    staleTime: 60 * 60 * 1000, // 1 hour
-    retry: 1,
-    // Fallback to static data on error
-    placeholderData: solarPackages.map((pkg) => ({
-      ...pkg,
-      price_eur: pkg.id === '8kw' ? 5900 : pkg.id === '12kw' ? 7750 : 9400,
-      ideal_for: pkg.idealFor,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })),
+    queryFn: async () => {
+      try {
+        const result = await getPricingPackages();
+        return result.length > 0 ? result : staticPackages;
+      } catch {
+        return staticPackages;
+      }
+    },
+    staleTime: 60 * 60 * 1000,
   });
 }
+
+const staticOfferCards = pricingOffers.map((offer, index) => ({
+  id: offer.id,
+  display_order: index + 1,
+  price_text: offer.price,
+  hero_image: offer.heroImage,
+  short_title: offer.shortTitle,
+  includes_text: offer.includes,
+  headline_lines: offer.headlineLines,
+  inverter_name: offer.inverter.name,
+  inverter_model: offer.inverter.model,
+  inverter_power_label: offer.inverter.powerLabel,
+  inverter_image: offer.inverter.image,
+  battery_name: offer.battery.name,
+  battery_model: offer.battery.model,
+  battery_energy_label: offer.battery.energyLabel,
+  battery_image: offer.battery.image,
+  panels_name: offer.panels.name,
+  panels_model: offer.panels.model,
+  panels_count: offer.panels.count,
+  panels_image: offer.panels.image,
+  cta_text: offer.ctaText,
+  cta_href: offer.ctaHref,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+}));
 
 export function usePricingOfferCards() {
   return useQuery({
     queryKey: pricingKeys.offerCards(),
-    queryFn: getPricingOfferCards,
-    staleTime: 60 * 60 * 1000, // 1 hour
-    retry: 1,
-    placeholderData: pricingOffers.map((offer, index) => ({
-      id: offer.id,
-      display_order: index + 1,
-      price_text: offer.price,
-      hero_image: offer.heroImage,
-      short_title: offer.shortTitle,
-      includes_text: offer.includes,
-      headline_lines: offer.headlineLines,
-      inverter_name: offer.inverter.name,
-      inverter_model: offer.inverter.model,
-      inverter_power_label: offer.inverter.powerLabel,
-      inverter_image: offer.inverter.image,
-      battery_name: offer.battery.name,
-      battery_model: offer.battery.model,
-      battery_energy_label: offer.battery.energyLabel,
-      battery_image: offer.battery.image,
-      panels_name: offer.panels.name,
-      panels_model: offer.panels.model,
-      panels_count: offer.panels.count,
-      panels_image: offer.panels.image,
-      cta_text: offer.ctaText,
-      cta_href: offer.ctaHref,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })),
+    queryFn: async () => {
+      try {
+        const result = await getPricingOfferCards();
+        return result.length > 0 ? result : staticOfferCards;
+      } catch {
+        return staticOfferCards;
+      }
+    },
+    staleTime: 60 * 60 * 1000,
   });
 }
 

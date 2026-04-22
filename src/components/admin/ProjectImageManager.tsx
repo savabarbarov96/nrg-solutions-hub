@@ -26,9 +26,10 @@ import { toast } from 'sonner';
 
 interface ProjectImageManagerProps {
   projectId: number;
+  onProjectMaterialized?: (newProjectId: number) => void;
 }
 
-export function ProjectImageManager({ projectId }: ProjectImageManagerProps) {
+export function ProjectImageManager({ projectId, onProjectMaterialized }: ProjectImageManagerProps) {
   const { data: images, isLoading } = useProjectImages(projectId);
   const uploadMutation = useUploadProjectImage();
   const deleteMutation = useDeleteProjectImage();
@@ -60,8 +61,15 @@ export function ProjectImageManager({ projectId }: ProjectImageManagerProps) {
 
       try {
         const displayOrder = (images?.length || 0) + i;
-        await uploadMutation.mutateAsync({ projectId, file, displayOrder });
+        const result = await uploadMutation.mutateAsync({ projectId, file, displayOrder });
         toast.success(`${file.name} uploaded successfully`);
+
+        // If the static project was just materialised into DB under a new id,
+        // notify parent so the URL can track the real DB id from now on.
+        if (result.resolved_project_id && result.resolved_project_id !== projectId) {
+          onProjectMaterialized?.(result.resolved_project_id);
+          break; // stop the loop; subsequent uploads should use the new id
+        }
       } catch (error) {
         toast.error(`Failed to upload ${file.name}`);
         console.error(error);

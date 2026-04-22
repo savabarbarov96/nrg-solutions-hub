@@ -146,8 +146,14 @@ export function useUploadProjectImage() {
       file: File;
       displayOrder?: number;
     }) => uploadProjectImage(projectId, file, displayOrder),
-    onSuccess: (_, { projectId }) => {
+    onSuccess: (result, { projectId }) => {
+      // Invalidate images for both the requested id and the resolved DB id
+      // (they differ when a static project was just materialised in DB).
       queryClient.invalidateQueries({ queryKey: projectKeys.images(projectId) });
+      if (result.resolved_project_id && result.resolved_project_id !== projectId) {
+        queryClient.invalidateQueries({ queryKey: projectKeys.images(result.resolved_project_id) });
+        queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      }
     },
   });
 }

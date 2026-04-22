@@ -109,7 +109,13 @@ export default function ProjectEdit() {
             <CardTitle>Images</CardTitle>
           </CardHeader>
           <CardContent>
-            <ProjectImageManager projectId={projectId} />
+            <ProjectImageManager
+              projectId={projectId}
+              onProjectMaterialized={(newId) => {
+                toast.success('Project synced to database — continuing under its new id.');
+                navigate(`/admin/projects/${newId}/edit`, { replace: true });
+              }}
+            />
           </CardContent>
         </Card>
       </div>

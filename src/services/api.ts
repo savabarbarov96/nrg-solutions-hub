@@ -354,15 +354,66 @@ export async function updateImageRotation(imageId: number, rotation: number): Pr
   }
 }
 
+// Ensure a DB row exists for a (possibly static) project id and return the
+// actual DB id. Used by operations whose FKs require the projects row to
+// exist (image inserts, etc.).
+async function ensureProjectInDb(id: number): Promise<number> {
+  // Cheap existence check first
+  const { data: existing } = await supabase
+    .from('projects')
+    .select('id')
+    .eq('id', id)
+    .maybeSingle();
+  if (existing?.id) return existing.id;
+
+  // Not in DB — find static project and upsert it by slug
+  const staticProject = staticProjects.find((p) => p.id === id);
+  if (!staticProject) {
+    throw new Error(`Project with id ${id} not found (not in DB or static list).`);
+  }
+
+  // Try update by slug (in case a DB row exists with a different id)
+  const { data: bySlug } = await supabase
+    .from('projects')
+    .select('id')
+    .eq('slug', staticProject.slug)
+    .maybeSingle();
+  if (bySlug?.id) return bySlug.id;
+
+  // Create the row from static data
+  const { data: created, error: createError } = await supabase
+    .from('projects')
+    .insert({
+      slug: staticProject.slug,
+      city: staticProject.city,
+      power: staticProject.power,
+      type: staticProject.type,
+      title: staticProject.title,
+      summary: staticProject.summary,
+      completed_scope: staticProject.completed_scope,
+      solis_note: staticProject.solis_note,
+    })
+    .select('id')
+    .single();
+  if (createError || !created) {
+    throw new Error(`Failed to create project row for "${staticProject.slug}": ${createError?.message ?? 'unknown error'}`);
+  }
+  return created.id;
+}
+
 export async function uploadProjectImage(
   projectId: number,
   file: File,
   displayOrder: number = 0
-): Promise<ProjectImage> {
+): Promise<ProjectImage & { resolved_project_id: number }> {
+  // Ensure a projects row exists for this id BEFORE uploading, so we don't
+  // leave orphan files in storage if the FK insert would fail.
+  const resolvedProjectId = await ensureProjectInDb(projectId);
+
   // Upload to Supabase Storage
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-  const filePath = `${projectId}/${fileName}`;
+  const filePath = `${resolvedProjectId}/${fileName}`;
 
   const { error: uploadError } = await supabase.storage
     .from('project-images')
@@ -378,9 +429,9 @@ export async function uploadProjectImage(
     data: { publicUrl },
   } = supabase.storage.from('project-images').getPublicUrl(filePath);
 
-  // Create database record
+  // Create database record with the resolved (real) project id
   const imageInsert: ProjectImageInsert = {
-    project_id: projectId,
+    project_id: resolvedProjectId,
     image_url: publicUrl,
     display_order: displayOrder,
   };
@@ -400,7 +451,7 @@ export async function uploadProjectImage(
     throw new Error('Failed to create image record: no image record was returned by the database');
   }
 
-  return data;
+  return { ...data, resolved_project_id: resolvedProjectId };
 }
 
 export async function deleteProjectImage(imageId: number): Promise<void> {

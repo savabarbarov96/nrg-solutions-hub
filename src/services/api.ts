@@ -511,42 +511,70 @@ function isFullOfferCardUpdate(updates: PricingOfferCardUpdate): boolean {
   return required.every((k) => updates[k] !== undefined && updates[k] !== null);
 }
 
-export async function updatePricingOfferCard(
+// Columns added by supabase-migration-offers-v2.sql. If the migration hasn't
+// been run on the target DB, Supabase rejects writes mentioning them with
+// PGRST204. Strip them and retry so the admin keeps working on the old schema.
+const V2_ONLY_COLUMNS: Array<keyof PricingOfferCardUpdate> = ['price_note', 'category'];
+
+function stripV2Columns(updates: PricingOfferCardUpdate): PricingOfferCardUpdate {
+  const result: PricingOfferCardUpdate = { ...updates };
+  for (const key of V2_ONLY_COLUMNS) {
+    delete result[key];
+  }
+  return result;
+}
+
+function isMissingColumnError(err: { code?: string; message?: string } | null | undefined): boolean {
+  if (!err) return false;
+  if (err.code === 'PGRST204') return true;
+  return /Could not find the .* column/i.test(err.message ?? '');
+}
+
+async function upsertOfferCardRow(
   id: PricingOfferCardId,
   updates: PricingOfferCardUpdate
 ): Promise<PricingOfferCard> {
-  // Try UPDATE first
+  const payload = { ...updates, updated_at: new Date().toISOString() };
+
   const { data: updated, error: updateError } = await supabase
     .from('pricing_offer_cards')
-    .update({ ...updates, updated_at: new Date().toISOString() })
+    .update(payload)
     .eq('id', id)
     .select()
     .maybeSingle();
 
-  if (updateError) {
-    console.error('Error updating pricing offer card:', updateError);
-    throw new Error(`Failed to update pricing offer card: ${updateError.message}`);
-  }
-
+  if (updateError) throw updateError;
   if (updated) return updated;
 
-  // Row didn't exist — if we have a full record, INSERT it (fallback for pre-v2 migrations).
   if (!isFullOfferCardUpdate(updates)) {
     throw new Error('Card not found in DB. Open it once and click "Запази промените" to create the row.');
   }
 
   const { data: inserted, error: insertError } = await supabase
     .from('pricing_offer_cards')
-    .insert({ id, ...updates, updated_at: new Date().toISOString() })
+    .insert({ id, ...payload })
     .select()
     .single();
 
-  if (insertError) {
-    console.error('Error inserting pricing offer card:', insertError);
-    throw new Error(`Failed to create pricing offer card: ${insertError.message}`);
-  }
-
+  if (insertError) throw insertError;
   return inserted;
+}
+
+export async function updatePricingOfferCard(
+  id: PricingOfferCardId,
+  updates: PricingOfferCardUpdate
+): Promise<PricingOfferCard> {
+  try {
+    return await upsertOfferCardRow(id, updates);
+  } catch (err) {
+    if (isMissingColumnError(err as { code?: string; message?: string })) {
+      console.warn('pricing_offer_cards schema missing v2 columns — retrying without them. Run supabase-migration-offers-v2.sql to enable category/price_note.');
+      return upsertOfferCardRow(id, stripV2Columns(updates));
+    }
+    const message = (err as Error)?.message ?? 'Unknown error';
+    console.error('Error saving pricing offer card:', err);
+    throw new Error(`Failed to save pricing offer card: ${message}`);
+  }
 }
 
 export async function uploadPricingOfferCardImage(

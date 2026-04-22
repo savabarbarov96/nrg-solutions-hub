@@ -41,13 +41,15 @@ function normalizeHeadlineLines(
   return [lines[0], lines[1], lines[2], lines[3]];
 }
 
+const REQUIRED_CATEGORIES: PricingOfferCategoryId[] = ['mono-lv', '3phase-lv', '3phase-hv'];
+
 function useResolvedOffers(): PricingOffer[] {
   const { data } = usePricingOfferCards();
   if (!data || data.length === 0) {
     return pricingOffers;
   }
 
-  return [...data]
+  const mapped = [...data]
     .sort((a, b) => a.display_order - b.display_order)
     .map((card) => ({
       id: card.id,
@@ -82,6 +84,14 @@ function useResolvedOffers(): PricingOffer[] {
       ctaText: card.cta_text,
       ctaHref: card.cta_href,
     }));
+
+  // If DB data doesn't cover all 3 categories (e.g. old schema / incomplete migration),
+  // fall back to the complete static set so every section has offers.
+  const allCategoriesPresent = REQUIRED_CATEGORIES.every(
+    (cat) => mapped.some((o) => o.category === cat)
+  );
+
+  return allCategoriesPresent ? mapped : pricingOffers;
 }
 
 export function PricingOfferGrid({
